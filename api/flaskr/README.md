@@ -28,4 +28,5 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### Run the application
 - export FLASK_APP=flaskr
 - export FLASK_ENV=development
+- flask init-db
 - flask run

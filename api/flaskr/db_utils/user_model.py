@@ -16,6 +16,7 @@ user = {
         "password": {"required": True, "db_format": generate_password_hash},
         "confirmed": {"required": False, "db_format": int},
         "created_on": {"required": False, "db_format": do_nothing},
+        "confirmation_token": {"required": False, "db_format": do_nothing},
     },
     "integrity_unique_field": "email"
 }

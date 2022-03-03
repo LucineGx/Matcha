@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS user
+DROP TABLE IF EXISTS user;
 
 CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -8,6 +8,5 @@ CREATE TABLE IF NOT EXISTS user (
     password TEXT NOT NULL,
     confirmed INTEGER NOT NULL DEFAULT 0,
     created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    confirmation_token TEXT,
-    token_expire_on TIMESTAMP,
+    confirmation_token TEXT
 );
