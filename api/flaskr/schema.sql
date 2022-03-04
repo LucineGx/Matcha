@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS user (
     password TEXT NOT NULL,
     confirmed INTEGER NOT NULL DEFAULT 0,
     created_on TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    confirmation_token TEXT
+    confirmation_token TEXT,
+    password_reinit_token TEXT
 );

@@ -8,8 +8,8 @@ from werkzeug.security import check_password_hash
 import secrets
 
 from flaskr.db import get_db
-from .db_utils.user_model import user
-from .db_utils.sql_wrapper import create_single_instance, update_instances
+from .db_utils.user_model import user as user_model
+from .db_utils.sql_wrapper import create_single_instance, update_user, get_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -23,7 +23,7 @@ def register():
     new = dict(request.form)
 
     # To do: add more constraints and checks !
-    for field, spec in user["fields"].items():
+    for field, spec in user_model["fields"].items():
         if spec["required"] is True:
             if field not in new or new[field] is None:
                 error = f"{field} is required"
@@ -32,13 +32,13 @@ def register():
     if error is None:
         new["confirmation_token"] = secrets.token_urlsafe(20)
         try:
-            create_single_instance(db, "user", new, user["fields"])
+            create_single_instance(db, "user", new, user_model["fields"])
         except db.IntegrityError:
-            error = f"{user['integrity_unique_field']} is already registered"
+            error = f"{new['email']} is already registered"
             status = 409
         else:
             send_confirmation_mail(new)
-            return f"User {new['email']} successfully saved.", 201
+            return f"User {new['email']} successfully saved", 201
 
     return error, status
 
@@ -49,15 +49,15 @@ def send_confirmation_mail(new_user: dict):
     confirm_url = url_for("auth.confirm_register", token=new_user["confirmation_token"], _external=True)
     html = render_template(
         'confirmation_mail.html',
+        user_name=new_user["firstname"],
         confirm_url=confirm_url)
     msg = Message(html=html, subject=subject, recipients=[new_user["email"]])
     mail.send(msg)
 
 
-@bp.route('/register/confirm/<token>')
+@bp.route('/register/confirm/<token>', methods=('GET',))
 def confirm_register(token):
-    db = get_db()
-    user = db.execute(f"SELECT * FROM user WHERE confirmation_token = ?", [token]).fetchone()
+    user = get_user("confirmation_token", token)
 
     if user is None:
         error = "Unknown token."
@@ -66,27 +66,24 @@ def confirm_register(token):
         error = "This user has already confirmed his email."
         status = 409
     else:
-        update_instances(db, "user", {"confirmation_token": None, "confirmed": True}, {"id": user["id"]})
-        return "Utilisateur confirmé avec succes", 200
+        update_user(update={"confirmation_token": None, "confirmed": True}, conditions={"id": user["id"]})
+        return "User confirmed successfully", 200
 
     return error, status
 
 
 @bp.route('/login', methods=('POST',))
 def login():
-    db = get_db()
-    error = None
-    status = 500
+    user = get_user("email", request.form["email"])
 
-    user = db.execute("SELECT * FROM user WHERE email = ?", (request.form["email"],)).fetchone()
     if user is None:
-        error = 'Unknown email.'
+        error = 'Incorrect email or password'
         status = 401
     elif not check_password_hash(user['password'], request.form["password"]):
-        error = 'Incorrect password.'
+        error = 'Incorrect email or password'
         status = 401
     elif not user["confirmed"]:
-        error = "User email is not confirmed."
+        error = "User email is not confirmed"
         status = 401
     else:
         session.clear()
@@ -96,10 +93,46 @@ def login():
     return error, status
 
 
-@bp.route('/logout')
+@bp.route('/logout', methods=('GET',))
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return "Logout successful", 200
+
+
+@bp.route('/forgot-password', methods=('POST',))
+def forgot_password():
+    response_message = "If a user is linked to this mail address, a link has been send to reinitialize the password."
+    user = get_user("email", request.form["email"])
+
+    if user is not None:
+        token = secrets.token_urlsafe(20)
+        update_user(update={"password_reinit_token": token}, conditions={"id": user["id"]})
+
+        mail = Mail(current_app)
+        subject = "Reinitialize your password"
+        url = f"http://localhost:3000/auth/change_password/{token}"
+        html = render_template(
+            'forgot_password.html',
+            user_name=user["firstname"],
+            url=url)
+        msg = Message(html=html, subject=subject, recipients=[user["email"]])
+        mail.send(msg)
+
+    return response_message, 200
+
+
+@bp.update_password('/update-password/<token>', methods('POST',))
+def update_password():
+    user = get_user("confirmation_token", token)
+
+    if user is None:
+        error = "Unknown token."
+        status = 404
+    else:
+        update_user(update={"confirmation_token": None, "password": request.form["password"]}, conditions={"id": user["id"]})
+        return "User confirmed successfully", 200
+
+    return error, status
 
 
 @bp.before_app_request
