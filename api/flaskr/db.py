@@ -12,7 +12,7 @@ def init_db():
     database connection, which is used to execute the commands read from the file.
     """
     db = get_db()
-    with current_app.open_resource('schema.sql') as f:
+    with current_app.open_resource('db_utils.schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
 
 

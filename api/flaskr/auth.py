@@ -1,15 +1,13 @@
-import functools
-
 from flask import (
-    Blueprint, current_app, g, redirect, request, session, url_for, render_template
+    Blueprint, current_app, g, request, session, url_for, render_template
 )
 from flask_mail import Mail, Message
 from werkzeug.security import check_password_hash
 import secrets
 
 from flaskr.db import get_db
-from .db_utils.user_model import user as user_model
-from .db_utils.sql_wrapper import create_single_instance, update_user, get_user
+from flaskr.user import user_model, update_user, get_user
+from flaskr.db_utils.sql_wrapper import create_single_instance
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -32,7 +30,7 @@ def register():
     if error is None:
         new["confirmation_token"] = secrets.token_urlsafe(20)
         try:
-            create_single_instance(db, "user", new, user_model["fields"])
+            create_single_instance(db, user_model["fields"], "user", new)
         except db.IntegrityError:
             error = f"{new['email']} is already registered"
             status = 409
@@ -56,20 +54,18 @@ def send_confirmation_mail(new_user: dict):
 
 
 @bp.route('/register/confirm/<token>', methods=('GET',))
-def confirm_register(token):
+def confirm_register(token: str):
     user = get_user("confirmation_token", token)
 
     if user is None:
-        error = "Unknown token."
-        status = 404
+        return "Unknown token.", 404
+
     elif user["confirmed"]:
-        error = "This user has already confirmed his email."
-        status = 409
+        return "This user has already confirmed his email", 409
+
     else:
         update_user(update={"confirmation_token": None, "confirmed": True}, conditions={"id": user["id"]})
         return "User confirmed successfully", 200
-
-    return error, status
 
 
 @bp.route('/login', methods=('POST',))
@@ -77,20 +73,18 @@ def login():
     user = get_user("email", request.form["email"])
 
     if user is None:
-        error = 'Incorrect email or password'
-        status = 401
+        return 'Incorrect email or password', 401
+
     elif not check_password_hash(user['password'], request.form["password"]):
-        error = 'Incorrect email or password'
-        status = 401
+        return 'Incorrect email or password', 401
+
     elif not user["confirmed"]:
-        error = "User email is not confirmed"
-        status = 401
+        return "User email is not confirmed", 401
+
     else:
         session.clear()
         session['user_id'] = user['id']
         return "Login successful", 200
-
-    return error, status
 
 
 @bp.route('/logout', methods=('GET',))
@@ -101,7 +95,7 @@ def logout():
 
 @bp.route('/forgot-password', methods=('POST',))
 def forgot_password():
-    response_message = "If a user is linked to this mail address, a link has been send to reinitialize the password."
+    response_message = "If a user is linked to this mail address, a link has been send to reinitialize the password"
     user = get_user("email", request.form["email"])
 
     if user is not None:
@@ -121,18 +115,15 @@ def forgot_password():
     return response_message, 200
 
 
-@bp.update_password('/update-password/<token>', methods('POST',))
-def update_password():
-    user = get_user("confirmation_token", token)
+@bp.route('/update-password/<token>', methods=('POST',))
+def update_password(token: str):
+    user = get_user("password_reinit_token", token)
 
     if user is None:
-        error = "Unknown token."
-        status = 404
+        return "Unknown token", 404
     else:
-        update_user(update={"confirmation_token": None, "password": request.form["password"]}, conditions={"id": user["id"]})
-        return "User confirmed successfully", 200
-
-    return error, status
+        update_user(update={"password_reinit_token": None, "password": request.form["password"]}, conditions={"id": user["id"]})
+        return "Password updated successfully", 200
 
 
 @bp.before_app_request
@@ -144,15 +135,4 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = get_db().execute("SELECT * FROM user WHERE id = ?", (user_id,)).fetchone()
-
-
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('auth.login'))
-
-        return view(**kwargs)
-
-    return wrapped_view
+        g.user = get_user("id", user_id)
