@@ -124,4 +124,11 @@ Response
 You're no longer logged in
 
 ## /tag
-###
+### /<tag_name> - GET
+Create the tag if it doesn't exist yet, assign a random color.
+
+Response
+- 200 - tag:
+  - id
+  - name
+  - color
