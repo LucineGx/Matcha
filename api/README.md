@@ -34,3 +34,94 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### Explore db
 - cd instance
 - sqlite3 flaskr.sqlite
+
+# API
+## /auth
+### /register - POST
+Form content:
+- email (constraints to decide)
+- firstname (constraints to decide)
+- lastname (constraints to decide)
+- password (constraints to decide)
+
+Responses:
+- 201: User <user> successfully saved
+- 400: <field> is required
+- 409: <user> is already registered
+- 500: Internal Server Error
+
+### /register/confirm/<token> - GET
+Responses:
+- 200: User confirmed successfully
+- 404: Unknown token
+- 500: Internal Server Error
+
+### /login - POST
+Form content:
+- email
+- password
+
+Responses:
+- 200: Login successfully
+- 404: Unknown token
+- 500: Internal Server Error
+
+### /logout - GET
+Responses:
+- 200: Logout successfully
+- 500: Internal Server Error
+
+### /forgot-password - POST
+Form content:
+- email
+
+Responses:
+- 200: If a user is linked to this mail address, a link has been sent to reinitialize the password
+- 500: Internal Server Error
+
+### /update-password/<token> - POST
+Form content:
+- password
+Responses:
+- 200: Password updated successfully
+- 404: Unknown token
+- 500: Internal Server Error
+
+## /user
+### / - GET
+Responses:
+- 200: user:
+  - id
+  - email
+  - firstname
+  - lastname
+  - created_on
+  - confirmed
+- 500: Internal Server Error
+
+### / - PUT 
+Form content:
+- email (optional)
+- firstname (optional)
+- lastname (optional)
+- password(optional)
+
+Responses:
+- 200: user:
+  - id
+  - email
+  - firstname
+  - lastname
+  - created_on
+  - confirmed
+- 500: Internal Server Error
+
+### / - DELETE
+Response
+- 200: User successfully deleted
+- 500: Internal Server Error
+
+You're no longer logged in
+
+## /tag
+###

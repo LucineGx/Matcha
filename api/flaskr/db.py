@@ -5,17 +5,6 @@ from flask import current_app, g
 from flask.cli import with_appcontext
 
 
-def init_db():
-    """
-    open_resource() opens a file relative to the flaskr package, which is useful since you won’t
-    necessarily know where that location is when deploying the application later. get_db returns a
-    database connection, which is used to execute the commands read from the file.
-    """
-    db = get_db()
-    with current_app.open_resource('db_utils.schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-
-
 def init_app(app):
     """
     app.teardown_appcontext() tells Flask to call that function when cleaning up after returning
@@ -24,16 +13,27 @@ def init_app(app):
     """
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(reinit_db_command)
 
 
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """
-    click.command() defines a command line command called init-db that calls the init_db function
-    and shows a success message to the user.
-    """
-    init_db()
+    db = get_db()
+    with current_app.open_resource('db_utils/create_tables.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+    click.echo('Initialized the database.')
+
+
+@click.command('reinit-db')
+@with_appcontext
+def reinit_db_command():
+    db = get_db()
+    with current_app.open_resource('db_utils/drop_tables.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+    click.echo("Cleared the database.")
+    with current_app.open_resource('db_utils/create_tables.sql') as f:
+        db.executescript(f.read().decode('utf8'))
     click.echo('Initialized the database.')
 
 

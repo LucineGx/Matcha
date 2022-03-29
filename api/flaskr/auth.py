@@ -6,37 +6,30 @@ from werkzeug.security import check_password_hash
 import secrets
 
 from flaskr.db import get_db
-from flaskr.user import user_model, update_user, get_user
-from flaskr.db_utils.sql_wrapper import create_single_instance
+from flaskr.user import update_user, get_user, validate_user, create_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @bp.route('/register', methods=('POST', ))
 def register():
-    db = get_db()
-    error = None
     status = 500
 
-    new = dict(request.form)
-
-    # To do: add more constraints and checks !
-    for field, spec in user_model["fields"].items():
-        if spec["required"] is True:
-            if field not in new or new[field] is None:
-                error = f"{field} is required"
-                status = 400
+    new_user = dict(request.form)
+    error = validate_user(new_user)
+    if error:
+        status = 400
 
     if error is None:
-        new["confirmation_token"] = secrets.token_urlsafe(20)
+        db = get_db()
         try:
-            create_single_instance(db, user_model["fields"], "user", new)
+            create_user(new_user, db)
         except db.IntegrityError:
-            error = f"{new['email']} is already registered"
+            error = f"{new_user['email']} is already registered"
             status = 409
         else:
-            send_confirmation_mail(new)
-            return f"User {new['email']} successfully saved", 201
+            send_confirmation_mail(get_user("email", new_user["email"]))
+            return f"User {new_user['email']} successfully saved", 201
 
     return error, status
 
@@ -60,11 +53,12 @@ def confirm_register(token: str):
     if user is None:
         return "Unknown token.", 404
 
-    elif user["confirmed"]:
-        return "This user has already confirmed his email", 409
-
     else:
-        update_user(update={"confirmation_token": None, "confirmed": True}, conditions={"id": user["id"]})
+        update_user(
+            update={"confirmation_token": None, "confirmed": True},
+            conditions={"id": user["id"]},
+            should_format_values=False
+        )
         return "User confirmed successfully", 200
 
 
