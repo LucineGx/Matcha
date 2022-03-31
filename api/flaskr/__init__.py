@@ -2,7 +2,8 @@ import os
 
 from flask import Flask
 
-from flaskr import db, auth, user, tag
+from flaskr import db, auth
+from flaskr.models import user, tag
 
 
 def create_app(test_config=None):

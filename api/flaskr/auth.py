@@ -6,30 +6,28 @@ from werkzeug.security import check_password_hash
 import secrets
 
 from flaskr.db import get_db
-from flaskr.user import update_user, get_user, validate_user, create_user
+from flaskr.models.user import update_user, get_user, create_user, expose_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
 @bp.route('/register', methods=('POST', ))
 def register():
-    status = 500
-
     new_user = dict(request.form)
-    error = validate_user(new_user)
-    if error:
-        status = 400
 
-    if error is None:
-        db = get_db()
-        try:
-            create_user(new_user, db)
-        except db.IntegrityError:
-            error = f"{new_user['email']} is already registered"
-            status = 409
-        else:
-            send_confirmation_mail(get_user("email", new_user["email"]))
-            return f"User {new_user['email']} successfully saved", 201
+    db = get_db()
+    try:
+        create_user(new_user, db)
+    except db.IntegrityError:
+        error = f"{new_user['email']} is already registered"
+        status = 409
+    except AssertionError as e:
+        error = str(e)
+        status = 400
+    else:
+        user = get_user("email", new_user["email"])
+        send_confirmation_mail(user)
+        return expose_user(user, 201)
 
     return error, status
 
@@ -55,9 +53,9 @@ def confirm_register(token: str):
 
     else:
         update_user(
-            update={"confirmation_token": None, "confirmed": True},
+            update={"confirmation_token": None, "confirmed": 3},
             conditions={"id": user["id"]},
-            should_format_values=False
+            validate=False
         )
         return "User confirmed successfully", 200
 
