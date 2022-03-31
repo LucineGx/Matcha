@@ -7,27 +7,14 @@ from email_validator import EmailNotValidError
 
 
 def validate_email(field_name: str, email: Any) -> None:
-    assert isinstance(email, str), f"Field {field_name} should be a string"
     try:
         _validate_email(email)
     except EmailNotValidError as e:
         raise AssertionError(e)
 
 
-def validate_sized_string(max_size: int, field_name: str, value: Any) -> None:
-    assert isinstance(value, str), f"Field {field_name} should be a string"
-    assert len(value) <= max_size, f"Field {field_name} should be {max_size} characters max"
-
-
-validate_32_string = partial(validate_sized_string, 32)
-validate_280_string = partial(validate_sized_string, 280)
-
-
 def validate_password(field_name: str, password: Any) -> None:
-    validate_32_string(field_name, password)
-    assert len(password) >= 8, f"Field {field_name} should be 8 characters min"
-
-    patterns = [r"\d", r"[A-Z]", r"[a-z]"]
+    patterns = [r"\d", r"[A-Z]", r"[a-z]", r"[_-.#^¨%,;:?!]"]
     for pattern in patterns:
         if re.search(pattern, password) is None:
             raise AssertionError(f"Pattern {pattern} missing in password.")

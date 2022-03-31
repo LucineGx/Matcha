@@ -1,36 +1,47 @@
 import secrets
-from functools import partial
+from typing import Tuple, Union
 
-from flask import Blueprint, g, request, session
+from flask import Blueprint, g, request, session, Response
 from werkzeug.security import generate_password_hash
 
-from flaskr.db.fields import Field
-from flaskr.utils import login_required, expose_model_instance
-from flaskr.validators import validate_email, validate_32_string, validate_password
-from flaskr.db_utils.sql_wrapper import get_single_instance, update_instance, delete_instance, create_single_instance
+from flaskr.db.fields import CharField, PositiveIntegerField, PositiveTinyIntegerField, DatetimeField
+from flaskr.db.base_model import BaseModel
+from flaskr.utils import login_required
+from flaskr.validators import validate_email, validate_password
+
 
 
 create_confirmation_token = lambda value: secrets.token_urlsafe(20)
 
 
-user_model = {
-    "id": Field(get=True),
-    "email": Field(create=True, get=True, required=True, custom_validate=validate_email),
-    "firstname": Field(create=True, get=True, required=True, custom_validate=validate_32_string),
-    "lastname": Field(create=True, get=True, required=True, custom_validate=validate_32_string),
-    "password": Field(create=True, get=True, required=True, custom_validate=validate_password, db_format=generate_password_hash),
-    "confirmed": Field(get=True, db_format=int),
-    "confirmation_token": Field(create=True, db_format=create_confirmation_token),
-    "password_reinit_token": Field(),
-    "created_on": Field(get=True)
-}
+# To do: email should be exposed for self, but not for other users
+class User(BaseModel):
+    name = "user"
 
+    fields = {
+        "id": PositiveIntegerField(primary_key=True, auto_increment=True),
+        "email": CharField(
+            unique=True, null=False, required=True, custom_validate=validate_email
+        ),
+        "first_name": CharField(required=True),
+        "last_name": CharField(default=""),
+        "password": CharField(
+            min_length=8,
+            authorized_characters="^[a-zA-Z0-9 _-.#^¨%,;:?!]*$",
+            required=True,
+            expose=False,
+            custom_validate=validate_password,
+            db_format=generate_password_hash
+        ),
+        "created_on": DatetimeField(),
+        "confirmed": PositiveTinyIntegerField(max=1, default=0, expose=True),
+        "confirmation_token": CharField(unique=True, null=True, expose=False), # To do: call create_confirmation_token in register function
+        "password_reinit_token": CharField(unique=True, null=True, expose=False)
+    }
 
-create_user = partial(create_single_instance, user_model, "user")
-get_user = partial(get_single_instance, "user")
-update_user = partial(update_instance, user_model, "user")
-delete_user = partial(delete_instance, "user")
-expose_user = partial(expose_model_instance, user_model)
+    @classmethod
+    def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
+        return cls._create(form, "email")
 
 
 bp = Blueprint("user", __name__, url_prefix="/user")
@@ -40,18 +51,13 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 @login_required
 def user():
     if request.method == 'GET':
-        return expose_user(g.user)
+        return User.expose("id", session['user_id'], 200)
 
     elif request.method == 'PUT':
-        try:
-            update_user(update=request.form, conditions={"id": g.user["id"]})
-        except AssertionError as e:
-            return str(e), 400
-        else:
-            return expose_user(get_user("id", g.user["id"]), 201)
+        return User.safe_update(request.form, "id", session["user_id"])
 
     elif request.method == "DELETE":
-        delete_user(conditions={"id": g.user["id"]})
+        User.delete("id", session["user_id"])
         session.clear()
         return "User successfully deleted", 200
 

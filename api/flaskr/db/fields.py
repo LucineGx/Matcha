@@ -10,18 +10,19 @@ def do_nothing(value: Any) -> Any:
 
 @dataclass
 class Field:
-    create: bool = False
-    expose: bool = False
+    # Fields used at table creation
+    type_name: str = None
+    primary_key: bool = False
+    auto_increment: bool = False
+    unique: bool = False
+    null: bool = False
+    default: Any = None
+
     required: bool = False
+    expose: bool = False
     custom_validate: Callable = lambda n, v: True
     db_format: Callable = do_nothing
 
-    type_name = None
-    primary_key = False
-    auto_increment = True
-    unique = False
-    default = None
-    null = True
 
     @classmethod
     def validate(cls, name: str, value: Any):
@@ -33,10 +34,11 @@ class Field:
         raise NotImplementedError
 
 
+@dataclass
 class PositiveIntegerField(Field):
-    type_name = "INTEGER"
-    min = 0
-    max = inf
+    type_name: str = "INTEGER"
+    min: int = 0
+    max: int = inf
 
     @classmethod
     def _validate(cls, name: str, value: Any):
@@ -47,14 +49,16 @@ class PositiveIntegerField(Field):
         )
 
 
+@dataclass
 class PositiveTinyIntegerField(PositiveIntegerField):
-    type_name = "TINYINT"
+    type_name: str = "TINYINT"
 
 
+@dataclass
 class CharField(Field):
-    min_length = 0
-    max_length = 32
-    authorized_characters = "^[a-zA-Z0-9 _-.]*$"
+    min_length: int = 0
+    max_length: int = 32
+    authorized_characters: str = "^[a-zA-Z0-9 _-.]*$"
 
     @property
     def type_name(self):
@@ -73,9 +77,10 @@ class CharField(Field):
         )
 
 
+@dataclass
 class FixedCharField(Field):
-    length = 0
-    authorized_characters = "^[a-zA-Z0-9 _-.]*$"
+    length: int = 0
+    authorized_characters: str = "^[a-zA-Z0-9 _-.]*$"
 
     @property
     def type_name(self):
@@ -91,9 +96,10 @@ class FixedCharField(Field):
         )
 
 
+@dataclass
 class DatetimeField(Field):
-    type_name = "TIMESTAMP"
-    default = "CURRENT_TIMESTAMP"
+    type_name: str = "TIMESTAMP"
+    default: Any = "CURRENT_TIMESTAMP"
 
     # To do: if required, find a way to validate timestamp.
     @classmethod
