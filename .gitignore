@@ -1,3 +1,4 @@
 .idea
 api/flaskr/__pycache__/
 api/flaskr/db_utils/__pycache__/
+client/npm-debug.log

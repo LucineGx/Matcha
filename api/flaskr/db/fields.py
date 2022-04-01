@@ -29,13 +29,11 @@ class Field:
     def type_name(self):
         raise NotImplementedError
 
-    @classmethod
-    def validate(cls, name: str, value: Any):
-        cls._validate(value, name)
-        cls.custom_validate(value, name)
+    def validate(self, name: str, value: Any):
+        self._validate(name, value)
+        self.custom_validate(name, value)
 
-    @classmethod
-    def _validate(cls, name: str, value: Any):
+    def _validate(self, name: str, value: Any):
         raise NotImplementedError
 
 
@@ -48,10 +46,9 @@ class PositiveIntegerField(Field):
     def type_name(self):
         return "INTEGER"
 
-    @classmethod
-    def _validate(cls, name: str, value: Any):
+    def _validate(self, name: str, value: Any):
         assert isinstance(value, int), f"Field {name} should be an int"
-        assert cls.min <= value <= cls.max, f"Field {name} value should be between {cls.min} and {cls.max}"
+        assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {cls.max}"
 
 
 @dataclass
@@ -71,11 +68,10 @@ class CharField(Field):
     def type_name(self):
         return f"varchar({self.max_length})"
 
-    @classmethod
-    def _validate(cls, name: str, value: Any):
+    def _validate(self, name: str, value: Any):
         assert isinstance(value, str), f"Field {name} should be a string"
-        assert cls.min_length <= len(value) <= cls.max_length, f"Field {name} should be {cls.max_length} characters max"
-        assert re.match(cls.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
+        assert self.min_length <= len(value) <= self.max_length, f"Field {name} should be {self.max_length} characters max"
+        assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: {self.authorized_characters}"
 
 
 @dataclass
@@ -87,11 +83,10 @@ class FixedCharField(Field):
     def type_name(self):
         return f"char({self.length})"
 
-    @classmethod
-    def _validate(cls, name: str, value: Any):
+    def _validate(self, name: str, value: Any):
         assert isinstance(value, str), f"Field {name} should be a string"
-        assert len(value) == cls.length, f"Field {name} should be {cls.length} characters long"
-        assert re.match(cls.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
+        assert len(value) == self.length, f"Field {name} should be {self.length} characters long"
+        assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
 
 
 @dataclass
@@ -103,6 +98,5 @@ class DatetimeField(Field):
         return "TIMESTAMP"
 
     # To do: if required, find a way to validate timestamp.
-    @classmethod
-    def _validate(cls, name: str, value: Any):
+    def _validate(self, name: str, value: Any):
         pass

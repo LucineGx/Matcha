@@ -14,7 +14,7 @@ def validate_email(_: str, email: Any) -> None:
 
 
 def validate_password(_: str, password: Any) -> None:
-    patterns = [r"\d", r"[A-Z]", r"[a-z]", r"[_-.#^¨%,;:?!]"]
+    patterns = [r"\d", r"[A-Z]", r"[a-z]", r"[_\-.#^¨%,;:?!@]"]
     for pattern in patterns:
         if re.search(pattern, password) is None:
             raise AssertionError(f"Pattern {pattern} missing in password.")

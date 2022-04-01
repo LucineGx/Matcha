@@ -73,7 +73,7 @@ class BaseModel:
         set_statement = ", ".join([f"{column} = ?" for column in form.keys()])
         where_statement = f"{on_col} = ?"
         try:
-            cls.validate_form(form, check_required=False)
+            cls.validate_form(form)
         except AssertionError as e:
             return str(e), 400
         values = list(cls.format_values(form)) + [for_val]

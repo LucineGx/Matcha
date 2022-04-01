@@ -17,13 +17,13 @@ class User(BaseModel):
     fields = {
         "id": PositiveIntegerField(primary_key=True, auto_increment=True),
         "email": CharField(
-            unique=True, null=False, required=True, custom_validate=validate_email
+            authorized_characters="^[a-zA-Z0-9_\-.@]*$", unique=True, null=False, required=True, custom_validate=validate_email
         ),
         "first_name": CharField(required=True),
         "last_name": CharField(default="''"),
         "password": CharField(
             min_length=8,
-            authorized_characters="^[a-zA-Z0-9_\-.#^¨%,;:?!]*$",
+            authorized_characters="^[a-zA-Z0-9_\-.#^¨%,;:?!@]*$",
             required=True,
             expose=False,
             custom_validate=validate_password,

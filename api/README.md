@@ -156,6 +156,7 @@ Create a profile for the current user.
 
 Form content:
 - <b>gender (one of "female", "male", "none")</b>
+- <b>level</b> (between 1 and 100)
 - search_male (True if in the form, else False)
 - search_female (True if in the form, else False)
 - search_none (True if in the form, else False)
@@ -164,7 +165,6 @@ Form content:
 - type_2_id (present in the type table)
 - <b>egg_group_id</b> (present in the egg_group table)
 - egg_group_2_id (present in the egg_group_table)
-- <b>level</b> (between 1 and 100)
 
 Response
 - 201: profile:
