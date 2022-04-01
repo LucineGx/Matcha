@@ -130,7 +130,7 @@ def assign_likes(users: pd.DataFrame) -> pd.DataFrame:
     return users.assign(**{'liked': lambda df: df['id'].apply(Like.is_user_liked)})
 
 
-def count_common_tags_points(users: pd.DataFrame) -> Union[pd.Series, 0]:
+def count_common_tags_points(users: pd.DataFrame) -> Union[pd.Series, int]:
     from flaskr.models import UserTag
 
     user_tags = UserTag.get('user_id', g.user['id']).fetchall()

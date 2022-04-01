@@ -2,7 +2,6 @@ import random
 from typing import Tuple, Union
 
 from flask import Blueprint, Response
-from pyrsistent import m
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import CharField
@@ -72,7 +71,7 @@ class Tag(BaseModel):
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         form["color"] = str(hex(random.randint(0, 0xffffff)))
         return cls._create(form, "name")
-    
+
     @classmethod
     def fill_table(cls) -> None:
         if not cls._list():
