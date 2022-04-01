@@ -1,3 +1,14 @@
 .idea
 api/flaskr/__pycache__/
 api/flaskr/db_utils/__pycache__/
+api/flaskr/models/__pycache__/*
+api/flaskr/db/__pycache__/*
+api/flaskr/db/__pycache__/__init__.cpython-39.pyc
+api/flaskr/db/__pycache__/base_model.cpython-39.pyc
+api/flaskr/db/__pycache__/fields.cpython-39.pyc
+api/flaskr/db/__pycache__/utils.cpython-39.pyc
+api/flaskr/models/__pycache__/__init__.cpython-39.pyc
+api/flaskr/models/__pycache__/profile.cpython-39.pyc
+api/flaskr/models/__pycache__/tag.cpython-39.pyc
+api/flaskr/models/__pycache__/user.cpython-39.pyc
+api/instance/flaskr.sqlite

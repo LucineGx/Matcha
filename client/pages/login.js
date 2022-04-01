@@ -46,7 +46,7 @@ export default function Login() {
           Mot de passe
           <input id="password" name="password"
             type="password" autoComplete="mot de passe"
-            required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+            required
           />
           <br/>
           <button type="submit" className={styles.card}>Ce connecter</button>
