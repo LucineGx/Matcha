@@ -1,28 +1,26 @@
 import random
-from functools import partial
+from typing import Tuple, Union
 
-from flask import Blueprint
+from flask import Blueprint, Response
 
-from flaskr.db import get_db
-from flaskr.db.fields import Field
-from flaskr.utils import login_required, expose_model_instance
-from flaskr.validators import validate_32_string
-from flaskr.db_utils.sql_wrapper import get_single_instance, create_single_instance
+from flaskr.db.base_model import BaseModel
+from flaskr.db.fields import PositiveIntegerField, CharField
+from flaskr.utils import login_required
 
 
-get_color = lambda value: str(hex(random.randint(0, 0xffffff)))
+class Tag(BaseModel):
+    name = "tag"
 
+    fields = {
+        "id": PositiveIntegerField(primary_key=True, auto_increment=True),
+        "name": CharField(unique=True, required=True),
+        "color": CharField(max_length=7, authorized_characters="^[0-9#]*$", )
+    }
 
-tag_model = {
-    "id": Field(get=True),
-    "name": Field(create=True, get=True, required=True, custom_validate=validate_32_string),
-    "color": Field(create=True, get=True, db_format=get_color)
-}
-
-
-create_tag = partial(create_single_instance, tag_model, "tag")
-get_tag_by_name = partial(get_single_instance, "tag", "name")
-expose_tag = partial(expose_model_instance, tag_model)
+    @classmethod
+    def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
+        form["color"] = str(hex(random.randint(0, 0xffffff)))
+        return cls._create(form, "name")
 
 
 bp = Blueprint("tag", __name__, url_prefix="/tag")
@@ -31,17 +29,9 @@ bp = Blueprint("tag", __name__, url_prefix="/tag")
 @bp.route('/<tag_name>', methods=("GET",))
 @login_required
 def get_tag(tag_name: str):
-    tag = get_tag_by_name(tag_name)
-    if tag is None:
-        db = get_db()
-        try:
-            create_tag({"name": tag_name}, db)
-        except AssertionError as e:
-            return str(e), 400
-        tag = get_tag_by_name(tag_name)
-        status_code = 201
-    else:
-        status_code = 200
+    tag, status_code = Tag.expose("name", tag_name, 200)
 
-    return expose_tag(tag, status_code)
+    if status_code == 404:
+        return Tag.create({"name": tag_name})
 
+    return tag, status_code

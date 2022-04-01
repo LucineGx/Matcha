@@ -2,7 +2,7 @@ from typing import Any, Optional, Tuple, Union
 
 from flask import jsonify, Response
 
-from flaskr.db import get_db
+from flaskr.db.utils import get_db
 from flaskr.db.fields import Field
 
 
@@ -21,10 +21,14 @@ class BaseModel:
         instance = cls.get(on_col, for_val)
         if instance is None:
             return "Resource not found", 404
+        return cls._expose(instance, status_code)
+
+    @classmethod
+    def _expose(cls, instance: dict, status_code: int) -> Tuple[Union[str, Response], int]:
         return jsonify({
             name: instance[name]
-            for name, field in cls.fields.items
-            if field.get
+            for name, field in cls.fields.items()
+            if field.expose
         }), status_code
 
     @classmethod
@@ -57,8 +61,8 @@ class BaseModel:
     @classmethod
     def format_values(cls, instance: dict) -> Tuple[Any, ...]:
         return tuple(
-            field.db_format(instance.get(name, None))
-            for name, field in cls.fields.items()
+            cls.fields[name].db_format(value)
+            for name, value in instance.items()
         )
 
     @classmethod
@@ -69,7 +73,7 @@ class BaseModel:
         set_statement = ", ".join([f"{column} = ?" for column in form.keys()])
         where_statement = f"{on_col} = ?"
         try:
-            cls.validate_form(form)
+            cls.validate_form(form, check_required=False)
         except AssertionError as e:
             return str(e), 400
         values = list(cls.format_values(form)) + [for_val]
@@ -83,7 +87,7 @@ class BaseModel:
         db = get_db()
         set_statement = ", ".join([f"{column} = ?" for column in form.keys()])
         where_statement = " AND ".join([f"{column} = ?" for column in conditions.keys()])
-        values = list(form.values())
+        values = list(form.values()) + list(conditions.values())
         query = f"UPDATE {cls.name} SET {set_statement} WHERE {where_statement}"
         db.execute(query, values)
         db.commit()

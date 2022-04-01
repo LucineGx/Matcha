@@ -11,18 +11,23 @@ def do_nothing(value: Any) -> Any:
 @dataclass
 class Field:
     # Fields used at table creation
-    type_name: str = None
     primary_key: bool = False
     auto_increment: bool = False
+
     unique: bool = False
     null: bool = False
     default: Any = None
 
+    # Fields for API routes
     required: bool = False
-    expose: bool = False
+    expose: bool = True
+
     custom_validate: Callable = lambda n, v: True
     db_format: Callable = do_nothing
 
+    @property
+    def type_name(self):
+        raise NotImplementedError
 
     @classmethod
     def validate(cls, name: str, value: Any):
@@ -36,29 +41,31 @@ class Field:
 
 @dataclass
 class PositiveIntegerField(Field):
-    type_name: str = "INTEGER"
     min: int = 0
     max: int = inf
+
+    @property
+    def type_name(self):
+        return "INTEGER"
 
     @classmethod
     def _validate(cls, name: str, value: Any):
         assert isinstance(value, int), f"Field {name} should be an int"
-        assert (
-            cls.min <= value <= cls.max,
-            f"Field {name} value should be between {cls.min} and {cls.max}"
-        )
+        assert cls.min <= value <= cls.max, f"Field {name} value should be between {cls.min} and {cls.max}"
 
 
 @dataclass
 class PositiveTinyIntegerField(PositiveIntegerField):
-    type_name: str = "TINYINT"
+    @property
+    def type_name(self):
+        return "TINYINT"
 
 
 @dataclass
 class CharField(Field):
     min_length: int = 0
     max_length: int = 32
-    authorized_characters: str = "^[a-zA-Z0-9 _-.]*$"
+    authorized_characters: str = "^[a-zA-Z0-9 _\-.]*$"
 
     @property
     def type_name(self):
@@ -67,14 +74,8 @@ class CharField(Field):
     @classmethod
     def _validate(cls, name: str, value: Any):
         assert isinstance(value, str), f"Field {name} should be a string"
-        assert (
-            cls.min_length <= len(value) <= cls.max_length,
-            f"Field {name} should be {cls.max_length} characters max"
-        )
-        assert (
-            re.match(cls.authorized_characters, value),
-            f"Authorized characters for {name}: alpha-numerical or one of .-_"
-        )
+        assert cls.min_length <= len(value) <= cls.max_length, f"Field {name} should be {cls.max_length} characters max"
+        assert re.match(cls.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
 
 
 @dataclass
@@ -89,17 +90,17 @@ class FixedCharField(Field):
     @classmethod
     def _validate(cls, name: str, value: Any):
         assert isinstance(value, str), f"Field {name} should be a string"
-        assert (len(value) == cls.length, f"Field {name} should be {cls.length} characters long")
-        assert (
-            re.match(cls.authorized_characters, value),
-            f"Authorized characters for {name}: alpha-numerical or one of .-_"
-        )
+        assert len(value) == cls.length, f"Field {name} should be {cls.length} characters long"
+        assert re.match(cls.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
 
 
 @dataclass
 class DatetimeField(Field):
-    type_name: str = "TIMESTAMP"
     default: Any = "CURRENT_TIMESTAMP"
+
+    @property
+    def type_name(self):
+        return "TIMESTAMP"
 
     # To do: if required, find a way to validate timestamp.
     @classmethod

@@ -1,8 +1,8 @@
-import sqlite3
-
 import click
-from flask import current_app, g
+from flask import g
 from flask.cli import with_appcontext
+
+from flaskr.models import models
 
 
 def init_app(app):
@@ -19,49 +19,23 @@ def init_app(app):
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    db = get_db()
-    with current_app.open_resource('db_utils/create_tables.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-    click.echo('Initialized the database.')
+    init_db()
 
 
 @click.command('reinit-db')
 @with_appcontext
 def reinit_db_command():
-    db = get_db()
-    with current_app.open_resource('db_utils/drop_tables.sql') as f:
-        db.executescript(f.read().decode('utf8'))
+    for model in models:
+        model.drop_table()
     click.echo("Cleared the database.")
-    with current_app.open_resource('db_utils/create_tables.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-    click.echo('Initialized the database.')
+    init_db()
 
 
-def get_db():
-    """
-    g is a special object that is unique for each request. It is used to store data that might be
-    accessed by multiple functions during the request. The connection is stored and reused instead
-    of creating a new connection if get_db is called a second time in the same request.
-
-    current_app is another special object that points to the Flask application handling the request.
-    Since you used an application factory, there is no application object when writing the rest of
-    your code. get_db will be called when the application has been created and is handling a request,
-    so current_app can be used.
-
-    sqlite3.connect() establishes a connection to the file pointed at by the DATABASE configuration
-    key. This file doesn’t have to exist yet, and won’t until you initialize the database later.
-
-    sqlite3.Row tells the connection to return rows that behave like dicts. This allows accessing
-    the columns by name.
-    """
-    if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
-
-    return g.db
+def init_db():
+    for model in models:
+        click.echo(f"Initialize {model.name}")
+        model.create_table()
+    click.echo('Database initialized.')
 
 
 def close_db(e=None):
