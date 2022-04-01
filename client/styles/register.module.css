@@ -1,12 +1,10 @@
 .container {
   padding: 0 2rem;
-  /* background-color: #250f1cc5; */
-  background: rgb(112,0,0);
-  background: linear-gradient(180deg, rgba(112,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(255,255,255,1) 100%);
+  background-color: #74124bc5;
 }
 
 .bgPicture {
-  background-image: url('../public/home.png');
+  background-image: url('../public/pokemon___minimalist_by_laddraig_d7v8v4h-fullview.jpeg');
   background-size:  100%;
   background-position-y: center;
   background-repeat: no-repeat;
