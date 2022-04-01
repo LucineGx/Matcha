@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 
 from flaskr import db, auth
 from flaskr.models import user, tag
@@ -38,6 +39,7 @@ def create_app(test_config=None):
     file there.
     """
     app = Flask(__name__, instance_relative_config=True)
+    cors = CORS(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
