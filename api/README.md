@@ -40,18 +40,12 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### /register - POST
 Form content:
 - <b>email (valid mail)
-- firstname (32 char max)
+- firstname (32 char max)</b>
 - lastname (32 char max)
-- password (8 char min, 32 char max, must contain one number, one low-case char and on up-case char)</b>
+- <b>password (8 char min, 32 char max, must contain one number, one low-case char and on up-case char)</b>
 
 Responses:
-- 201: user:
-  - id
-  - email
-  - firstname
-  - lastname
-  - created_on
-  - confirmed
+- 201: "User created successfully"
 - 400: Validation Error with details
 - 409: "<user> is already registered"
 - 500: Internal Server Error
@@ -68,13 +62,20 @@ Form content:
 - <b>password</b>
 
 Responses:
-- 200: "Login successfully"
-- 404: "Unknown token"
+- 200: user:
+  - id
+  - email
+  - firstname
+  - lastname
+  - created_on
+  - confirmed
+- 401: "Incorrect email or password"
+- 401: "User email is not confirmed"
 - 500: Internal Server Error
 
 ### /logout - GET
 Responses:
-- 200: "Logout successfully"
+- 200: "Logout successful"
 - 500: Internal Server Error
 
 ### /forgot-password - POST
@@ -88,8 +89,10 @@ Responses:
 ### /update-password/<token> - POST
 Form content:
 - <b>password</b>
+
 Responses:
-- 200: "Password updated successfully"
+- 201: "Password updated successfully"
+- 400: Validation error with details
 - 404: "Unknown token"
 - 500: Internal Server Error
 
@@ -103,6 +106,7 @@ Responses:
   - lastname
   - created_on
   - confirmed
+- 404: "Resource not found"
 - 500: Internal Server Error
 
 ### / - PUT 
@@ -119,8 +123,8 @@ Responses:
   - firstname
   - lastname
   - created_on
-- 400: Validation Error with details
   - confirmed
+- 400: Validation Error with details
 - 500: Internal Server Error
 
 ### / - DELETE
