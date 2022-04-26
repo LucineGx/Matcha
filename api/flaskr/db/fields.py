@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 from math import inf
 import re
 
@@ -33,7 +33,7 @@ class Field:
         self._validate(name, value)
         self.custom_validate(name, value)
 
-    def _validate(self, name: str, value: Any):
+    def _validate(self, name: str, value: Any) -> None:
         raise NotImplementedError
 
 
@@ -46,9 +46,9 @@ class PositiveIntegerField(Field):
     def type_name(self):
         return "INTEGER"
 
-    def _validate(self, name: str, value: Any):
+    def _validate(self, name: str, value: Any) -> None:
         assert isinstance(value, int), f"Field {name} should be an int"
-        assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {cls.max}"
+        assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
 
 
 @dataclass
@@ -68,10 +68,22 @@ class CharField(Field):
     def type_name(self):
         return f"varchar({self.max_length})"
 
-    def _validate(self, name: str, value: Any):
+    def _validate(self, name: str, value: Any) -> None:
         assert isinstance(value, str), f"Field {name} should be a string"
         assert self.min_length <= len(value) <= self.max_length, f"Field {name} should be {self.max_length} characters max"
         assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: {self.authorized_characters}"
+
+
+@dataclass
+class ChoiceField(CharField):
+    choice: Optional[list] = None
+    
+    def _validate(self, name: str, value: Any) -> None:
+        assert isinstance(value, str), f"Field {name} should be a string"
+        assert isinstance(self.choice, list), f"{name} choice should be a list of string"
+        for elem in self.choice:
+            assert isinstance(elem, str), f"{name} choice should be a list of string"
+        assert value in self.choice, f"{name} should be in {self.choice}"
 
 
 @dataclass
@@ -83,7 +95,7 @@ class FixedCharField(Field):
     def type_name(self):
         return f"char({self.length})"
 
-    def _validate(self, name: str, value: Any):
+    def _validate(self, name: str, value: Any) -> None:
         assert isinstance(value, str), f"Field {name} should be a string"
         assert len(value) == self.length, f"Field {name} should be {self.length} characters long"
         assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
@@ -98,5 +110,5 @@ class DatetimeField(Field):
         return "TIMESTAMP"
 
     # To do: if required, find a way to validate timestamp.
-    def _validate(self, name: str, value: Any):
+    def _validate(self, name: str, value: Any) -> None:
         pass

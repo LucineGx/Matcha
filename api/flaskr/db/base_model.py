@@ -1,4 +1,4 @@
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union, List
 
 from flask import jsonify, Response
 
@@ -48,6 +48,23 @@ class BaseModel:
         db.execute(query, values)
         db.commit()
         return cls.expose(identifier_field, form[identifier_field], 201)
+
+    @classmethod
+    def bulk_create(cls, columns: Tuple[str], values: List[Tuple[Any]]) -> None:
+        """
+        The values must follow the format
+        [
+            (val1, val2, val3),
+            (val1, val2, val3),
+            ...
+        ]
+        for columns (col1, col2, col3)
+        """
+        db = get_db()
+        query = f"INSERT INTO {cls.name} {columns} VALUES {', '.join([str(row) for row in values])};"
+        db.execute(query)
+        db.commit()
+
 
     @classmethod
     def validate_form(cls, form: dict, check_required: bool = True) -> None:
