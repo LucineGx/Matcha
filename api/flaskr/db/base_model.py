@@ -40,11 +40,18 @@ class BaseModel:
         ), status_code
 
     @classmethod
+    def bulk_get(cls, on_cols: List[str], for_vals: List[Any]):
+        db = get_db()
+        where = [f"{col} = ?" for col in on_cols]
+        query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
+        return db.execute(query, for_vals).fetchall()
+
+    @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         raise NotImplementedError
 
     @classmethod
-    def _create(cls, form: dict, identifier_field: str) -> Tuple[Union[str, Response], int]:
+    def _create(cls, form: dict, identifier_field: str = "", expose: bool = True) -> Tuple[Union[str, Response], int]:
         db = get_db()
         try:
             cls.validate_form(form)
@@ -55,7 +62,10 @@ class BaseModel:
         query = f"INSERT INTO {cls.name} {field_names} VALUES ({', '.join(['?'] * len(field_names))})"
         db.execute(query, values)
         db.commit()
-        return cls.expose(identifier_field, form[identifier_field], 201)
+        if expose:
+            return cls.expose(identifier_field, form[identifier_field], 201)
+        else:
+            return f"{cls.name} created with success", 201
 
     @classmethod
     def create_table(cls):

@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from flask import g, Blueprint, request, Response, session
+from flask import Blueprint, request, Response, session
 
 from flaskr.db.utils import get_db
 from flaskr.db.base_model import BaseModel
@@ -9,6 +9,7 @@ from flaskr.utils import login_required
 from flaskr.validators import validate_gender
 
 from .egg_group import EggGroup
+from .tag import Tag
 from .type import Type
 from .user import User
 
@@ -68,3 +69,23 @@ def self_profile():
 @login_required
 def other_profile(user_id: int):
     return Profile.expose("user_id", user_id, 200)
+
+
+@bp.route('/<user_id>/tags', methods=('GET',))
+@login_required
+def list_other_profile_tags(user_id: int):
+    return list_tags(user_id)
+
+
+@bp.route('/tags', methods=('GET',))
+@login_required
+def list_profile_tags():
+    return list_tags(session["user_id"])
+
+
+def list_tags(user_id):
+    from .user_tag import UserTag
+    user_tags = UserTag.bulk_get(on_cols=["user_id"], for_vals=[user_id])
+    tag_ids = [tag["id"] for tag in user_tags]
+    tags = Tag.bulk_get(on_cols=["id"], for_vals=[tag_ids])
+    return Tag.bulk_expose(tags, 200)
