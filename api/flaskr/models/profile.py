@@ -4,20 +4,23 @@ from flask import g, Blueprint, request, Response, session
 
 from flaskr.db.utils import get_db
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, CharField, PositiveTinyIntegerField
+from flaskr.db.fields import PositiveIntegerField, CharField, PositiveTinyIntegerField, ForeignKeyField
 from flaskr.utils import login_required
-from flaskr.validators import validate_gender, validate_type, validate_egg_group
+from flaskr.validators import validate_gender
+
+from .egg_group import EggGroup
+from .type import Type
+from .user import User
 
 
-get_bool_value = lambda value: 1 if value is not None else 0
+get_bool_value = lambda value: 1 if (value is not None and int(value) != 0) else 0
 
 
-# To do: handle the unique property with some robustness
 class Profile(BaseModel):
     name = "profile"
 
     fields = {
-        "user_id": PositiveIntegerField(primary_key=True),
+        "user_id": ForeignKeyField(to=User, primary_key=True),
         "level": PositiveIntegerField(min=1, max=100, required=True),
         "gender": CharField(max_length=6, default="'none'", required=True, custom_validate=validate_gender),
         "search_male": PositiveTinyIntegerField(max=1, default=0, db_format=get_bool_value),
@@ -25,10 +28,10 @@ class Profile(BaseModel):
         "search_none": PositiveTinyIntegerField(max=1, default=0, db_format=get_bool_value),
         "short_bio": CharField(max_length=280, null=True),
         "public_popularity": PositiveTinyIntegerField(max=100, null=True),
-        "type": CharField(max_length=8, required=True, custom_validate=validate_type),
-        "type_2": CharField(max_length=8, null=True, custom_validate=validate_type),
-        "egg_group": CharField(max_length=8, required=True, custom_validate=validate_egg_group),
-        "egg_group_2": CharField(max_length=8, null=True, custom_validate=validate_egg_group)
+        "type": ForeignKeyField(to=Type, required=True),
+        "type_2": ForeignKeyField(to=Type, null=True),
+        "egg_group": ForeignKeyField(to=EggGroup, required=True),
+        "egg_group_2": ForeignKeyField(to=EggGroup, null=True)
     }
 
     @classmethod
@@ -48,7 +51,7 @@ bp = Blueprint("profile", __name__, url_prefix="/profile")
 @login_required
 def self_profile():
     if request.method == "POST":
-        return Profile.create(request.form)
+        return Profile.create(dict(request.form))
 
     if request.method == "GET":
         return Profile.expose("user_id", session["user_id"], 200)

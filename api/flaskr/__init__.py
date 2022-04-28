@@ -4,7 +4,7 @@ from flask import Flask
 from flask_cors import CORS
 
 from flaskr import db, auth
-from flaskr.models import user, tag
+from flaskr.models import *
 
 
 def create_app(test_config=None):
@@ -69,4 +69,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(tag.bp)
+    app.register_blueprint(type.bp)
+    app.register_blueprint(egg_group.bp)
+    app.register_blueprint(profile.bp)
     return app

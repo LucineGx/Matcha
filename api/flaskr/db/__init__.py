@@ -35,6 +35,7 @@ def init_db():
     for model in models:
         click.echo(f"Initialize {model.name}")
         model.create_table()
+        model.fill_table()
     click.echo('Database initialized.')
 
 

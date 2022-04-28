@@ -1,4 +1,6 @@
+from typing import Tuple, Union
 
+from flask import Blueprint, Response
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import PositiveIntegerField, ChoiceField, FixedCharField
@@ -15,7 +17,7 @@ TYPES = {
     "Ghost": "#705898",
     "Grass": "#78C850",
     "Ground": "#E0C068",
-    "Ice": "#705848",
+    "Ice": "#98D8D8",
     "Normal": "#A8A878",
     "Poison": "#A040A0",
     "Psychic": "#F85888",
@@ -35,6 +37,20 @@ class Type(BaseModel):
     }
 
     @classmethod
-    def create_table(cls):
-        super().create_table()
+    def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
+        return cls._create(form, "name")
 
+    @classmethod
+    def fill_table(cls) -> None:
+        cls.bulk_create(
+            columns=("name", "color"),
+            values=[(name, color) for name, color in TYPES.items()]
+        )
+
+
+bp = Blueprint("type", __name__, url_prefix="/types")
+
+
+@bp.route('', methods=("GET",))
+def list_types():
+    return Type.list()

@@ -41,14 +41,31 @@ class Field:
 class PositiveIntegerField(Field):
     min: int = 0
     max: int = inf
+    db_format = int
 
     @property
     def type_name(self):
         return "INTEGER"
 
     def _validate(self, name: str, value: Any) -> None:
-        assert isinstance(value, int), f"Field {name} should be an int"
-        assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
+        if isinstance(value, str):
+            assert value.isnumeric(), f"Field {name} should be an int"
+            assert self.min <= int(value) <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
+        else:
+            assert isinstance(value, int), f"Field {name} should be an int"
+            assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
+
+
+@dataclass
+class ForeignKeyField(PositiveIntegerField):
+    to: object = None
+    on: str = "id"
+
+    def _validate(self, name: str, value: Any) -> None:
+        super()._validate(name, value)
+        foreign_rows = self.to._list()
+        foreign_values = [row[self.on] for row in foreign_rows]
+        assert int(value) in foreign_values, f"{name} not in {self.to.name} table."
 
 
 @dataclass

@@ -134,6 +134,28 @@ Response
 
 You're no longer logged in
 
+## /types
+### - GET
+List all the types available in the app.
+
+Response
+- 200: list of types:
+  - id
+  - name
+  - color
+- 500: Internal Server Error
+
+## /egg_groups
+### - GET
+List all the egg groups available in the app.
+
+Response
+- 200: list of egg groups:
+  - id
+  - name
+  - color
+- 500: Internal Server Error
+
 ## /tag
 ### /<tag_name> - GET
 Create the tag if it doesn't exist yet, assign a random color.
