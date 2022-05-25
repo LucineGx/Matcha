@@ -38,6 +38,17 @@ class Field:
 
 
 @dataclass
+class BlobField(Field):
+    @property
+    def type_name(self):
+        return "BLOB"
+
+    def _validate(self, name: str, value: Any) -> None:
+        pass
+
+
+
+@dataclass
 class PositiveIntegerField(Field):
     min: int = 0
     max: int = inf
@@ -82,6 +93,12 @@ class PositiveTinyIntegerField(PositiveIntegerField):
     @property
     def type_name(self):
         return "TINYINT"
+
+@dataclass
+class BooleanField(PositiveTinyIntegerField):
+    max: int = 1
+    default: int = 0
+    db_format: lambda value: 1 if (value is not None and int(value) != 0) else 0
 
 
 @dataclass

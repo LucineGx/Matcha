@@ -55,7 +55,7 @@ def confirm_register(token: str):
 
 @bp.route('/login', methods=('POST',))
 def login():
-    user = User.get("email", request.form["email"])
+    user = User.get("email", request.form["email"]).fetchone()
 
     if user is None:
         return 'Incorrect email or password', 401

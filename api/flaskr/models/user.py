@@ -4,7 +4,7 @@ from flask import Blueprint, request, session, Response
 from werkzeug.security import generate_password_hash
 
 from flaskr.db.utils import get_db
-from flaskr.db.fields import CharField, PositiveIntegerField, PositiveTinyIntegerField, DatetimeField
+from flaskr.db.fields import CharField, PositiveIntegerField, DatetimeField, do_nothing, BooleanField
 from flaskr.db.base_model import BaseModel
 from flaskr.utils import login_required
 from flaskr.validators import validate_email, validate_password
@@ -30,7 +30,7 @@ class User(BaseModel):
             db_format=generate_password_hash
         ),
         "created_on": DatetimeField(),
-        "confirmed": PositiveTinyIntegerField(max=1, default=0),
+        "confirmed": BooleanField(db_format=do_nothing),
         "confirmation_token": CharField(unique=True, null=True, expose=False), # To do: call create_confirmation_token in register function
         "password_reinit_token": CharField(unique=True, null=True, expose=False)
     }
