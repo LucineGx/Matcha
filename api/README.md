@@ -28,8 +28,8 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### Run the application
 - export FLASK_APP=flaskr
 - export FLASK_ENV=development
-- flask init-db
-- flask run
+- python3 -m flask init-db
+- python3 -m flask run
 
 ### Explore db
 - cd instance
@@ -40,7 +40,7 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### /register - POST
 Form content:
 - <b>email (valid mail)
-- firstname (32 char max)</b>
+- first_name (32 char max)</b>
 - lastname (32 char max)
 - <b>password (8 char min, 32 char max, must contain one number, one low-case char and on up-case char)</b>
 
@@ -183,10 +183,10 @@ Form content:
 - search_female (True if in the form, else False)
 - search_none (True if in the form, else False)
 - short_bio (280 char max)
-- <b>type_id</b> (present in the type table)
-- type_2_id (present in the type table)
-- <b>egg_group_id</b> (present in the egg_group table)
-- egg_group_2_id (present in the egg_group_table)
+- <b>type</b> (present in the type table)
+- type_2 (present in the type table)
+- <b>egg_group</b> (present in the egg_group table)
+- egg_group_2 (present in the egg_group_table)
 
 Response
 - 201: profile:
@@ -197,10 +197,10 @@ Response
   - search_none
   - short_bio
   - public_popularity
-  - type_id
-  - type_2_id
-  - egg_group_id
-  - egg_group_2_id
+  - type
+  - type_2
+  - egg_group
+  - egg_group_2
   - level
 - 400: Validation Error with details
 - 409: "User <email> has already defined a profile"

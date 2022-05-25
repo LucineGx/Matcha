@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from flask import Blueprint, Response, session
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, ForeignKeyField
+from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, ForeignCharField
 from flaskr.models import User, Tag
 
 
@@ -13,7 +13,7 @@ class UserTag(BaseModel):
     fields = {
         "id": PositiveIntegerField(primary_key=True, auto_increment=True, unique=True),
         "user_id": ForeignKeyField(to=User),
-        "tag_id": ForeignKeyField(to=Tag, required=True),
+        "tag_name": ForeignCharField(to=Tag, on='name', required=True),
     }
 
     @classmethod

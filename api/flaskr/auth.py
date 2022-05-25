@@ -17,10 +17,10 @@ def register():
     if status_code == 201:
         token = secrets.token_urlsafe(20)
         User.update(
-            {"confirmation_token": token},
+            {"confirmation_token": token, "confirmed": 1},
             {"email": request.form["email"]}
         )
-        send_confirmation_mail(request.form, token)
+        #send_confirmation_mail(request.form, token)
         msg = "User created successfully"
 
     return msg, status_code

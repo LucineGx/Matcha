@@ -12,9 +12,8 @@ class Tag(BaseModel):
     name = "tag"
 
     fields = {
-        "id": PositiveIntegerField(primary_key=True, auto_increment=True),
-        "name": CharField(unique=True, required=True),
-        "color": FixedCharField(length=7, authorized_characters="^[0-9#]*$", )
+        "name": CharField(primary_key=True, unique=True, required=True),
+        "color": FixedCharField(length=8, authorized_characters="^[0-9abcdefx]*$", )
     }
 
     @classmethod
@@ -28,7 +27,10 @@ bp = Blueprint("tag", __name__, url_prefix="/tag")
 
 @bp.route('/<tag_name>', methods=("GET",))
 @login_required
-def get_tag(tag_name: str):
+def _get_or_create_tag(tag_name: str):
+    return get_or_create_tag(tag_name)
+
+def get_or_create_tag(tag_name: str):
     tag, status_code = Tag.expose("name", tag_name, 200)
 
     if status_code == 404:

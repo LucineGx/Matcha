@@ -44,13 +44,13 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
-    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-    app.config['MAIL_PORT'] = 465
-    app.config['MAIL_USERNAME'] = 'dev.project.mail.sender@gmail.com'
-    app.config['MAIL_DEFAULT_SENDER'] = 'dev.project.mail.sender@gmail.com'
-    app.config['MAIL_PASSWORD'] = "pJXk#U^8"
-    app.config['MAIL_USE_TLS'] = False
-    app.config['MAIL_USE_SSL'] = True
+    #app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    #app.config['MAIL_PORT'] = 465
+    #app.config['MAIL_USERNAME'] = 'dev.project.mail.sender@gmail.com'
+    #app.config['MAIL_DEFAULT_SENDER'] = 'dev.project.mail.sender@gmail.com'
+    #app.config['MAIL_PASSWORD'] = "pJXk#U^8"
+    #app.config['MAIL_USE_TLS'] = False
+    #app.config['MAIL_USE_SSL'] = True
 
     if test_config is None:
         # load the instance config if it exists, when not testing

@@ -56,8 +56,8 @@ class PositiveIntegerField(Field):
             assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
 
 
-@dataclass
-class ForeignKeyField(PositiveIntegerField):
+dataclass
+class ForeignField(Field):
     to: object = None
     on: str = "id"
 
@@ -65,7 +65,16 @@ class ForeignKeyField(PositiveIntegerField):
         super()._validate(name, value)
         foreign_rows = self.to._list()
         foreign_values = [row[self.on] for row in foreign_rows]
-        assert int(value) in foreign_values, f"{name} not in {self.to.name} table."
+        assert value in foreign_values, f"{name} not in {self.to.name} table."
+
+
+@dataclass
+class ForeignKeyField(ForeignField, PositiveIntegerField):
+    to: object = None
+    on: str = "id"
+
+    def _validate(self, name: str, value: Any) -> None:
+        super()._validate(name, int(value))
 
 
 @dataclass
@@ -89,6 +98,12 @@ class CharField(Field):
         assert isinstance(value, str), f"Field {name} should be a string"
         assert self.min_length <= len(value) <= self.max_length, f"Field {name} should be {self.max_length} characters max"
         assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: {self.authorized_characters}"
+
+
+@dataclass
+class ForeignCharField(ForeignField, CharField):
+    to: object = None
+    on: str = "id"
 
 
 @dataclass

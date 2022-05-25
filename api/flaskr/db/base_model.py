@@ -80,10 +80,15 @@ class BaseModel:
         db.commit()
 
     @classmethod
-    def delete(cls, on_col: str, for_val: Any) -> None:
+    def delete(cls, on_col: Union[str, List[str]], for_val: Any) -> None:
         db = get_db()
-        query = f"DELETE FROM {cls.name} WHERE {on_col} = ?"
-        db.execute(query, [for_val])
+        if isinstance(on_col, str):
+            query = f"DELETE FROM {cls.name} WHERE {on_col} = ?"
+            db.execute(query, [for_val])
+        elif isinstance(on_col, list):
+            where = [f"{col} = ?" for col in on_col]
+            query = f"DELETE FROM {cls.name} WHERE {' AND '.join(where)}"
+            db.execute(query, for_val)
         db.commit()
 
     @classmethod
@@ -94,7 +99,7 @@ class BaseModel:
 
     @classmethod
     def expose(cls, on_col: str, for_val: Any, status_code: int) -> Tuple[Union[str, Response], int]:
-        instance = cls.get(on_col, for_val)
+        instance = cls.get(on_col, for_val).fetchone()
         if instance is None:
             return "Resource not found", 404
         return cls._expose(instance, status_code)
@@ -122,10 +127,24 @@ class BaseModel:
         )
 
     @classmethod
-    def get(cls, on_col: str, for_val: Any) -> Optional[dict]:
+    def get(cls, on_col: Union[str, List[str]], for_val: Any) -> Optional[dict]:
         db = get_db()
-        query = f"SELECT * FROM {cls.name} WHERE {on_col} = ?"
-        return db.execute(query, [for_val]).fetchone()
+        if isinstance(on_col, str):
+            if isinstance(for_val, list):
+                query = f"SELECT * FROM {cls.name} WHERE {on_col} IN ({', '.join(['?' for val in for_val])})"
+                return db.execute(query, for_val)
+            else:
+                query = f"SELECT * FROM {cls.name} WHERE {on_col} = ?"
+                return db.execute(query, [for_val])
+        elif isinstance(on_col, list):
+            where = [
+                f"{col} in ?"
+                if isinstance(val, list)
+                else f"{col} = ?"
+                for col, val in zip(on_col, for_val)
+            ]
+            query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
+            return db.execute(query, for_val)
 
     @staticmethod
     def get_field_creation_query(field: Field, name: str) -> str:
@@ -183,6 +202,7 @@ class BaseModel:
     @classmethod
     def validate_form(cls, form: dict, check_required: bool = True) -> None:
         for name, value in form.items():
+            assert name in cls.fields, f"Unknown field {name}"
             cls.fields[name].validate(name, value)
         if check_required:
             for name, field in cls.fields.items():

@@ -24,7 +24,7 @@ def validate_password(_: str, password: Any) -> None:
 def validate_choice(valid_choices: List[str], field_name: str, value: Any) -> None:
     error_msg = f"Unauthorized value for {field_name}"
     assert isinstance(value, str), error_msg
-    assert value in valid_choices
+    assert value in valid_choices, f"Value of {field_name} must be one of {valid_choices}"
 
 
 gender_choice = {"female", "male", "none"}

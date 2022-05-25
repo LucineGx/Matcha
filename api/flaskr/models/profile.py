@@ -1,3 +1,5 @@
+import json
+from crypt import methods
 from typing import Tuple, Union
 
 from flask import Blueprint, request, Response, session
@@ -9,7 +11,7 @@ from flaskr.utils import login_required
 from flaskr.validators import validate_gender
 
 from .egg_group import EggGroup
-from .tag import Tag
+from .tag import Tag, get_or_create_tag
 from .type import Type
 from .user import User
 
@@ -71,10 +73,23 @@ def other_profile(user_id: int):
     return Profile.expose("user_id", user_id, 200)
 
 
-@bp.route('/<user_id>/tags', methods=('GET',))
+##########
+#  TAGS  #
+##########
+
+@bp.route('/tag/<tag_name>', methods=('PUT', 'DELETE'))
 @login_required
-def list_other_profile_tags(user_id: int):
-    return list_tags(user_id)
+def update_user_tags(tag_name: str):
+    from .user_tag import UserTag
+    if request.method == 'PUT':
+        user_tag = UserTag.get(on_col=['user_id', 'tag_name'], for_val=[session['user_id'], tag_name]).fetchone()
+        if user_tag is None:
+            get_or_create_tag(tag_name)
+            UserTag.create({'tag_name': tag_name})
+    elif request.method == 'DELETE':
+        UserTag.delete(on_col=['user_id', 'tag_name'], for_val=[session['user_id'], tag_name])
+
+    return list_tags(session["user_id"])
 
 
 @bp.route('/tags', methods=('GET',))
@@ -83,9 +98,18 @@ def list_profile_tags():
     return list_tags(session["user_id"])
 
 
+@bp.route('/<user_id>/tags', methods=('GET',))
+@login_required
+def list_other_profile_tags(user_id: int):
+    return list_tags(user_id)
+
+
 def list_tags(user_id):
     from .user_tag import UserTag
-    user_tags = UserTag.bulk_get(on_cols=["user_id"], for_vals=[user_id])
-    tag_ids = [tag["id"] for tag in user_tags]
-    tags = Tag.bulk_get(on_cols=["id"], for_vals=[tag_ids])
+    user_tags = UserTag.get(on_col="user_id", for_val=user_id).fetchall()
+    tag_names = [tag["tag_name"] for tag in user_tags]
+    if tag_names:
+        tags = Tag.get(on_col="name", for_val=tag_names).fetchall()
+    else:
+        tags = list()
     return Tag.bulk_expose(tags, 200)
