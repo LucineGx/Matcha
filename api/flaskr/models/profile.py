@@ -67,4 +67,8 @@ def self_profile():
 @bp.route('/<user_id>', methods=('GET',))
 @login_required
 def other_profile(user_id: int):
-    return Profile.expose("user_id", user_id, 200)
+    from .like import Like
+    from .visit import Visit
+    Visit.create({"host_user_id": user_id, "guest_user_id": session['user_id']})
+    liked = Like.is_profile_liked(user_id)
+    return Profile.expose("user_id", user_id, 200, custom_fields={"liked": liked})

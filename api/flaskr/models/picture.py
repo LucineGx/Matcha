@@ -1,15 +1,26 @@
 from typing import Tuple, Union
 
 from flask import Response, Blueprint, session, request
-from api.flaskr.models.user import user
-from api.flaskr.utils import login_required
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, BooleanField, do_nothing, BlobField
-from flaskr.models import User
+from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, BooleanField, BlobField
+from flaskr.utils import login_required
+
+from .user import User
 
 
 class Picture(BaseModel):
+    """
+    Each picture must be linked to one user/profile.
+    Each user can only save a maximum of five pictures.
+    Only one can be the main picture, but there don't have to be one.
+
+    We need to be able to
+        - add a picture
+        - delete a picture
+        - pdate a picture or its 'main' status
+        - get all the pictures of a given user.
+    """
     name = "picture"
 
     fields = {
@@ -21,6 +32,11 @@ class Picture(BaseModel):
 
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
+        """
+            When a picture is added or changed, if the form indicates that this picture is going
+            to be the main one, we'll run a request to make sure all the others pictures of the
+            user get their 'main' field set to 0.
+        """
         form["user_id"] = session["user_id"]
         if BooleanField().db_format(form['main']):
             cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
@@ -32,7 +48,9 @@ class Picture(BaseModel):
         return super().validate_form(form, check_required)
     
     @classmethod
-    def get_user_pictures(cls, user_id: int = session['user_id']):
+    def get_user_pictures(cls, user_id: int = None):
+        if user_id is None:
+            user_id = session['user_id']
         return cls.get(on_col="user_id", for_val=user_id).fetchall()
 
 
@@ -40,9 +58,17 @@ class Picture(BaseModel):
 bp = Blueprint("picture", __name__, url_prefix="/profile")
 
 
-@bp.route('/pictures', mehods=('GET',))
+@bp.route('/pictures', methods=('GET',))
+@login_required
 def get_self_pictures():
-    user_pictures = Picture.get_user_pictures() | list()
+    user_pictures = Picture.get_user_pictures() or list()
+    return Picture.bulk_expose(user_pictures, 200)
+
+
+@bp.route('/<user_id>/pictures', methods=('GET',))
+@login_required
+def get_other_pictures(user_id: int):
+    user_pictures = Picture.get_user_pictures(user_id) or list()
     return Picture.bulk_expose(user_pictures, 200)
 
 
@@ -50,3 +76,22 @@ def get_self_pictures():
 @login_required
 def add_picture():
     return Picture.create(dict(request.form))
+
+
+@bp.route('/picture/<picture_id>', methods=('PUT', 'DELETE',))
+@login_required
+def update_picture(picture_id: int):
+    """
+        When a picture is added or changed, if the form indicates that this picture is going
+        to be the main one, we'll run a request to make sure all the others pictures of the
+        user get their 'main' field set to 0.
+    """
+    if request.method == 'DELETE':
+        Picture.delete("id", picture_id)
+    elif request.method == 'PUT':
+        if BooleanField().db_format(request.form['main']):
+            Picture.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
+        Picture.safe_update(request.form, "id", picture_id)
+    user_pictures = Picture.get_user_pictures() or list()
+    return Picture.bulk_expose(user_pictures, 200)
+

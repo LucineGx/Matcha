@@ -1,0 +1,35 @@
+from typing import Tuple, Union
+
+from flask import Response, session
+
+from flaskr.db.base_model import BaseModel
+from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, DatetimeField
+from flaskr.utils import login_required
+
+from .profile import bp
+from .user import User
+
+
+class Visit(BaseModel):
+    """
+    Users must be able to consult who visited their profile.
+    """
+    name = "visit"
+
+    fields = {
+        "id": PositiveIntegerField(primary_key=True, auto_increment=True),
+        "host_user_id": ForeignKeyField(to=User, expose=False),
+        "guest_user_id": ForeignKeyField(to=User),
+        "visited_on": DatetimeField()
+    }
+
+    @classmethod
+    def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
+        return cls._create(form, expose=False)
+
+
+@bp.route('/visits', methods=('GET',))
+@login_required
+def get_visits():
+    visits = Visit.get('host_user_id', session['user_id']).fetchall()
+    return Visit.bulk_expose(visits, 200)

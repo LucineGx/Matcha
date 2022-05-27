@@ -57,7 +57,7 @@ def confirm_register(token: str):
 def login():
     user = User.get("email", request.form["email"]).fetchone()
 
-    if user is None:
+    if user is None or "password" not in request.form:
         return 'Incorrect email or password', 401
 
     elif not check_password_hash(user['password'], request.form["password"]):

@@ -98,19 +98,26 @@ class BaseModel:
         db.commit()
 
     @classmethod
-    def expose(cls, on_col: str, for_val: Any, status_code: int) -> Tuple[Union[str, Response], int]:
+    def expose(
+        cls, on_col: str, for_val: Any, status_code: int, custom_fields: Optional[dict] = None
+    ) -> Tuple[Union[str, Response], int]:
         instance = cls.get(on_col, for_val).fetchone()
         if instance is None:
             return "Resource not found", 404
-        return cls._expose(instance, status_code)
+        return cls._expose(instance, status_code, custom_fields)
 
     @classmethod
-    def _expose(cls, instance: dict, status_code: int) -> Tuple[Union[str, Response], int]:
-        return jsonify({
+    def _expose(
+        cls, instance: dict, status_code: int, custom_fields: Optional[dict] = None
+    ) -> Tuple[Union[str, Response], int]:
+        exposed_fields = {
             name: instance[name]
             for name, field in cls.fields.items()
             if field.expose
-        }), status_code
+        }
+        if custom_fields is not None:
+            exposed_fields.update(custom_fields)
+        return jsonify(exposed_fields), status_code
 
     @classmethod
     def fill_table(cls) -> None:
