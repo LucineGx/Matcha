@@ -1,24 +1,34 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { toast } from 'react-toastify'
 import styles from '../styles/Home.module.css'
 
+const notify = (txt) => toast(txt)
+
+
 export default function Login() {
-  const registerUser = async event => {
+  const connect = async event => {
     event.preventDefault()
+    const { email, password } = event.target
+    var formdata = new FormData()
+    formdata.append('email', email.value)
+    formdata.append('password', password.value)
 
-    const res = await fetch('/api/hello', {
-      body: JSON.stringify({
-        name: event.target.name.value,
-        passWord: event.target.password.value
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      method: 'POST'
-    })
+    try {
+      const res = await globalThis.fetch('http://127.0.0.1:5000/auth/login', {
+        body: formdata,
+        method: 'POST'
+      })
+      if (res.status === 200) {
+        console.log('redirect to profile page')
+        window.location.href = '/profile'
+      } else {
+        notify(await res.text())
+      }
+    } catch (err) {
+      throw Error(err)
+    }
 
-    const result = await res.json()
-    console.log(result)
     // result.user => 'john Doe'
   }
 
@@ -33,23 +43,25 @@ export default function Login() {
       <main className={styles.main}>
         <h1 className={styles.title}>
           Connexion
-          Connexion
         </h1>
 
-        <form onSubmit={registerUser}>
-          
-          Nom d'utilisateur
-          <input id="name" name="name"
-            type="text" autoComplete="name" required
+        <form onSubmit={connect}>
+          <input id="email" name="email" placeholder="email@exemple.com"
+            style={{borderRadius:'5vh', borderWidth:'0.1vh', textAlign:'center'}}
+            type="text" required
           />
           <br/>
-          Mot de passe
           <input id="password" name="password"
-            type="password" autoComplete="mot de passe"
+            type="password" placeholder="Mot de passe"
+            style={{borderRadius:'5vh', borderWidth:'0.1vh', textAlign:'center'}}
             required
           />
           <br/>
-          <button type="submit" className={styles.card}>Ce connecter</button>
+          <button type="submit" className={styles.card}
+            style={{borderRadius:'5vh', borderWidth:'0.1vh', textAlign:'center', color:'#cacaca'}}
+          >
+            Ce connecter
+          </button>
 
         </form>
 
