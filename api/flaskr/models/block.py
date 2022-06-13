@@ -1,14 +1,14 @@
 from typing import Tuple, Union
 
 from flask import Response, session, request
-from api.flaskr.utils import login_required
 
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField
+from flaskr.utils import login_required
 
 from .profile import bp
-from .user import User, user
+from .user import User
 
 
 class BlockedUser(BaseModel):

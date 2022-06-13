@@ -17,10 +17,10 @@ def register():
     if status_code == 201:
         token = secrets.token_urlsafe(20)
         User.update(
-            {"confirmation_token": token, "confirmed": 1},
+            {"confirmation_token": token},
             {"email": request.form["email"]}
         )
-        #send_confirmation_mail(request.form, token)
+        send_confirmation_mail(request.form, token)
         msg = "User created successfully"
 
     return msg, status_code
@@ -40,7 +40,7 @@ def send_confirmation_mail(new_user: dict, token: str):
 
 @bp.route('/register/confirm/<token>', methods=('GET',))
 def confirm_register(token: str):
-    user = User.get("confirmation_token", token)
+    user = User.get("confirmation_token", token).fetchone()
 
     if user is None:
         return "Unknown token", 404

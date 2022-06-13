@@ -1,3 +1,4 @@
+from flaskr.models.block import BlockedUser
 from flaskr.models.egg_group import EggGroup
 from flaskr.models.like import Like
 from flaskr.models.picture import Picture
@@ -21,5 +22,6 @@ models = [
     UserTag,
     Picture,
     Like,
-    Visit
+    Visit,
+    BlockedUser
 ]
