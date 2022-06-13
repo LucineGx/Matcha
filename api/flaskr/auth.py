@@ -55,16 +55,16 @@ def confirm_register(token: str):
 
 @bp.route('/login', methods=('POST',))
 def login():
-    user = User.get("email", request.form["email"]).fetchone()
+    user = User.get("username", request.form["username"]).fetchone()
 
     if user is None or "password" not in request.form:
-        return 'Incorrect email or password', 401
+        return 'Incorrect username or password', 401
 
     elif not check_password_hash(user['password'], request.form["password"]):
-        return 'Incorrect email or password', 401
+        return 'Incorrect username or password', 401
 
     elif not user["confirmed"]:
-        return "User email is not confirmed", 401
+        return f"User {user['username']} is not confirmed", 401
 
     else:
         session.clear()

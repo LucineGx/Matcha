@@ -19,8 +19,9 @@ class User(BaseModel):
         "email": CharField(
             authorized_characters="^[a-zA-Z0-9_\-.@]*$", unique=True, null=False, required=True, custom_validate=validate_email
         ),
+        "username": CharField(unique=True, required=True),
         "first_name": CharField(required=True),
-        "last_name": CharField(default="''"),
+        "last_name": CharField(required=True),
         "password": CharField(
             min_length=8,
             authorized_characters="^[a-zA-Z0-9_\-.#^¨%,;:?!@]*$",

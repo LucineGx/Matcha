@@ -3,7 +3,7 @@ from typing import Any, Optional, Tuple, Union, List
 from flask import jsonify, Response
 
 from flaskr.db.utils import get_db
-from flaskr.db.fields import Field
+from flaskr.db.fields import Field, ForeignField
 
 
 class BaseModel:
@@ -45,6 +45,12 @@ class BaseModel:
         where = [f"{col} = ?" for col in on_cols]
         query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
         return db.execute(query, for_vals).fetchall()
+    
+    #@classmethod
+    #def cascade_delete(cls, object_id: int) -> None:
+    #    from flaskr.models import models
+    #    for model in models:
+    #        for field in 
 
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
@@ -211,7 +217,14 @@ class BaseModel:
         for name, value in form.items():
             assert name in cls.fields, f"Unknown field {name}"
             cls.fields[name].validate(name, value)
+            if cls.fields[name].unique:
+                cls.validate_uniqueness(name, value)
         if check_required:
             for name, field in cls.fields.items():
                 if field.required:
                     assert name in form, f"Field {name} is mandatory"
+    
+    @classmethod
+    def validate_uniqueness(cls, on_col: str, for_val: Any) -> None:
+        duplicate = cls.get(on_col, for_val).fetchone()
+        assert duplicate is None, f"{on_col} {for_val} already in used"
