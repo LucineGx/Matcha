@@ -4,7 +4,7 @@ from flask import Blueprint, request, session, Response
 from werkzeug.security import generate_password_hash
 
 from flaskr.db.utils import get_db
-from flaskr.db.fields import CharField, PositiveIntegerField, DatetimeField, do_nothing, BooleanField
+from flaskr.db.fields import CharField, PositiveIntegerField, DatetimeField, do_nothing, BooleanField, FloatField
 from flaskr.db.base_model import BaseModel
 from flaskr.utils import login_required
 from flaskr.validators import validate_email, validate_password
@@ -17,7 +17,7 @@ class User(BaseModel):
     fields = {
         "id": PositiveIntegerField(primary_key=True, auto_increment=True),
         "email": CharField(
-            authorized_characters="^[a-zA-Z0-9_\-.@]*$", unique=True, null=False, required=True, custom_validate=validate_email
+            max_length=64, authorized_characters="^[a-zA-Z0-9_\-.@]*$", unique=True, null=False, required=True, custom_validate=validate_email
         ),
         "username": CharField(unique=True, required=True),
         "first_name": CharField(required=True),
@@ -30,10 +30,13 @@ class User(BaseModel):
             custom_validate=validate_password,
             db_format=generate_password_hash
         ),
+        "custom_localisation": BooleanField(),
+        "lat": FloatField(min=-90, max=90, required=True, default=48.8947535),
+        "lon": FloatField(min=-180, max=180, required=True, default=2.3195573),
         "created_on": DatetimeField(),
         "confirmed": BooleanField(db_format=do_nothing),
         "confirmation_token": CharField(unique=True, null=True, expose=False), # To do: call create_confirmation_token in register function
-        "password_reinit_token": CharField(unique=True, null=True, expose=False)
+        "password_reinit_token": CharField(unique=True, null=True, expose=False),
     }
 
     @classmethod
@@ -55,6 +58,8 @@ def user():
         return User.expose("id", session['user_id'], 200)
 
     elif request.method == 'PUT':
+        if "username" in request.form:
+            return "Unmuttable username", 401
         return User.safe_update(request.form, "id", session["user_id"])
 
     elif request.method == "DELETE":

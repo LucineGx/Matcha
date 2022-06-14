@@ -14,8 +14,6 @@ The order of this list is important because some models contains foreign key tha
 dependency between them.
 """
 models = [
-    Type,
-    EggGroup,
     Tag,
     User,
     Profile,

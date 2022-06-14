@@ -6,7 +6,7 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, DatetimeField
 from flaskr.utils import login_required
 
-from .profile import bp
+from .profile import bp, Profile
 from .user import User
 
 
@@ -25,7 +25,9 @@ class Visit(BaseModel):
 
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
-        return cls._create(form, expose=False)
+        response = cls._create(form, expose=False)
+        Profile.compute_popularity_score(form['host_user_id'])
+        return response
 
 
 @bp.route('/visits', methods=('GET',))

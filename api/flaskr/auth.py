@@ -55,6 +55,8 @@ def confirm_register(token: str):
 
 @bp.route('/login', methods=('POST',))
 def login():
+    if "username" not in request.form or "password" not in request.form:
+        return "Username and passwords expected to login", 401
     user = User.get("username", request.form["username"]).fetchone()
 
     if user is None or "password" not in request.form:
@@ -81,7 +83,7 @@ def logout():
 @bp.route('/forgot-password', methods=('POST',))
 def forgot_password():
     response_message = "If a user is linked to this mail address, a link has been send to reinitialize the password"
-    user = User.get("email", request.form["email"])
+    user = User.get("email", request.form["email"]).fetchone()
 
     if user is not None:
         token = secrets.token_urlsafe(20)
@@ -105,7 +107,7 @@ def forgot_password():
 
 @bp.route('/update-password/<token>', methods=('POST',))
 def update_password(token: str):
-    user = User.get("password_reinit_token", token)
+    user = User.get("password_reinit_token", token).fetchone()
 
     if user is None:
         return "Unknown token", 404

@@ -161,3 +161,26 @@ class DatetimeField(Field):
     # To do: if required, find a way to validate timestamp.
     def _validate(self, name: str, value: Any) -> None:
         pass
+
+
+
+@dataclass
+class FloatField(Field):
+    min: int = -inf
+    max: int = inf
+    db_format = float
+
+    @property
+    def type_name(self):
+        return "FLOAT"
+
+    def _validate(self, name: str, value: Any) -> None:
+        if isinstance(value, str):
+            try :
+                assert self.min <= float(value) <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
+            except ValueError:
+                raise AssertionError(f"Field {name} should be an int")
+        else:
+            assert isinstance(value, float), f"Field {name} should be an int"
+            assert self.min <= value <= self.max, f"Field {name} value should be between {self.min} and {self.max}"
+

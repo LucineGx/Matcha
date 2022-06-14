@@ -27,6 +27,7 @@ TYPES = {
 }
 
 
+# To do: clean up
 class Type(BaseModel):
     name = "type"
 

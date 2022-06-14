@@ -24,6 +24,7 @@ EGG_GROUPS = {
 }
 
 
+# To do: cleab up
 class EggGroup(BaseModel):
     name = "egg_group"
 

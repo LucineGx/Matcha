@@ -140,14 +140,18 @@ class BaseModel:
         )
 
     @classmethod
-    def get(cls, on_col: Union[str, List[str]], for_val: Any) -> Optional[dict]:
+    def get(cls, on_col: Union[str, List[str]], for_val: Any, distinct: Optional[str] = None) -> Optional[dict]:
         db = get_db()
+        if distinct:
+            selection = f"distinct {distinct}"
+        else:
+            selection = "*"
         if isinstance(on_col, str):
             if isinstance(for_val, list):
-                query = f"SELECT * FROM {cls.name} WHERE {on_col} IN ({', '.join(['?' for val in for_val])})"
+                query = f"SELECT {selection} FROM {cls.name} WHERE {on_col} IN ({', '.join(['?' for val in for_val])})"
                 return db.execute(query, for_val)
             else:
-                query = f"SELECT * FROM {cls.name} WHERE {on_col} = ?"
+                query = f"SELECT {selection} FROM {cls.name} WHERE {on_col} = ?"
                 return db.execute(query, [for_val])
         elif isinstance(on_col, list):
             where = [
@@ -156,7 +160,7 @@ class BaseModel:
                 else f"{col} = ?"
                 for col, val in zip(on_col, for_val)
             ]
-            query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
+            query = f"SELECT {selection} FROM {cls.name} WHERE {' AND '.join(where)}"
             return db.execute(query, for_val)
 
     @staticmethod
@@ -216,9 +220,10 @@ class BaseModel:
     def validate_form(cls, form: dict, check_required: bool = True) -> None:
         for name, value in form.items():
             assert name in cls.fields, f"Unknown field {name}"
-            cls.fields[name].validate(name, value)
-            if cls.fields[name].unique:
-                cls.validate_uniqueness(name, value)
+            if not (cls.fields[name].null and value is None):
+                cls.fields[name].validate(name, value)
+                if cls.fields[name].unique:
+                    cls.validate_uniqueness(name, value)
         if check_required:
             for name, field in cls.fields.items():
                 if field.required:

@@ -6,7 +6,7 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField, DatetimeField
 from flaskr.utils import login_required
 
-from .profile import bp
+from .profile import bp, Profile
 from .user import User
 
 
@@ -27,7 +27,9 @@ class Like(BaseModel):
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         if not cls.is_profile_liked(form['host_user_id']):
             form['guest_user_id'] = session['user_id']
-            return cls._create(form, expose=False)
+            response = cls._create(form, expose=False)
+            Profile.compute_popularity_score(form['host_user_id'])
+            return response
         else:
             return "Profile liked already", 409
     
