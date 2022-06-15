@@ -5,7 +5,7 @@ from flask import Response, session, request
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField, ForeignCharField
 from flaskr.models import User, Tag
-from flaskr.models.profile import bp
+from flaskr.models.user import bp
 from flaskr.models.tag import get_or_create_tag
 from flaskr.utils import login_required
 
@@ -40,13 +40,13 @@ def update_user_tags(tag_name: str):
 
 @bp.route('/tags', methods=('GET',))
 @login_required
-def list_profile_tags():
+def list_user_tags():
     return list_tags(session["user_id"])
 
 
 @bp.route('/<user_id>/tags', methods=('GET',))
 @login_required
-def list_other_profile_tags(user_id: int):
+def list_other_user_tags(user_id: int):
     return list_tags(user_id)
 
 

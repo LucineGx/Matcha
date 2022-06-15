@@ -4,7 +4,7 @@ from typing import Tuple, Union
 from flask import Blueprint, Response
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, CharField, FixedCharField
+from flaskr.db.fields import CharField
 from flaskr.utils import login_required
 
 
@@ -13,7 +13,7 @@ class Tag(BaseModel):
 
     fields = {
         "name": CharField(primary_key=True, unique=True, required=True),
-        "color": FixedCharField(length=8, authorized_characters="^[0-9abcdefx]*$", )
+        "color": CharField(authorized_characters="^[0-9abcdefx]*$", )
     }
 
     @classmethod

@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from flask import Blueprint, Response
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, ChoiceField, FixedCharField
+from flaskr.db.fields import PositiveIntegerField, ChoiceField, CharField
 
 EGG_GROUPS = {
     "Amorphous": "#8A8A8A",
@@ -31,7 +31,7 @@ class EggGroup(BaseModel):
     fields = {
         "id": PositiveIntegerField(primary_key=True, auto_increment=True),
         "name": ChoiceField(max_length=8, choice=list(EGG_GROUPS.keys())),
-        "color": FixedCharField(length=7, authorized_characters="^[0-9#]*$", )
+        "color": CharField(max_length=8, authorized_characters="^[0-9#]*$", )
     }
 
     @classmethod

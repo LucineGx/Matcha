@@ -6,8 +6,7 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, DatetimeField
 from flaskr.utils import login_required
 
-from .profile import bp, Profile
-from .user import User
+from .user import User, bp
 
 
 class Visit(BaseModel):
@@ -26,7 +25,7 @@ class Visit(BaseModel):
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         response = cls._create(form, expose=False)
-        Profile.compute_popularity_score(form['host_user_id'])
+        User.compute_popularity_score(form['host_user_id'])
         return response
 
 

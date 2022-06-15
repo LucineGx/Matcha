@@ -2,7 +2,6 @@ from flaskr.models.block import BlockedUser
 from flaskr.models.egg_group import EggGroup
 from flaskr.models.like import Like
 from flaskr.models.picture import Picture
-from flaskr.models.profile import Profile
 from flaskr.models.tag import Tag
 from flaskr.models.type import Type
 from flaskr.models.user import User
@@ -16,7 +15,6 @@ dependency between them.
 models = [
     Tag,
     User,
-    Profile,
     UserTag,
     Picture,
     Like,

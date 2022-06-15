@@ -136,21 +136,6 @@ class ChoiceField(CharField):
 
 
 @dataclass
-class FixedCharField(Field):
-    length: int = 0
-    authorized_characters: str = "^[a-zA-Z0-9 _-.]*$"
-
-    @property
-    def type_name(self):
-        return f"char({self.length})"
-
-    def _validate(self, name: str, value: Any) -> None:
-        assert isinstance(value, str), f"Field {name} should be a string"
-        assert len(value) == self.length, f"Field {name} should be {self.length} characters long"
-        assert re.match(self.authorized_characters, value), f"Authorized characters for {name}: alpha-numerical or one of .-_"
-
-
-@dataclass
 class DatetimeField(Field):
     default: Any = "CURRENT_TIMESTAMP"
 

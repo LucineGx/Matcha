@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from flask import Blueprint, Response
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import PositiveIntegerField, ChoiceField, FixedCharField
+from flaskr.db.fields import PositiveIntegerField, ChoiceField, CharField
 
 TYPES = {
     "Bug": "#A8B820",
@@ -34,7 +34,7 @@ class Type(BaseModel):
     fields = {
         "id": PositiveIntegerField(primary_key=True, auto_increment=True),
         "name": ChoiceField(max_length=8, choice=list(TYPES.keys())),
-        "color": FixedCharField(length=7, authorized_characters="^[0-9#]*$", )
+        "color": CharField(max_length=8, authorized_characters="^[0-9#]*$", )
     }
 
     @classmethod

@@ -71,5 +71,4 @@ def create_app(test_config=None):
     app.register_blueprint(tag.bp)
     app.register_blueprint(type.bp)
     app.register_blueprint(egg_group.bp)
-    app.register_blueprint(profile.bp)
     return app

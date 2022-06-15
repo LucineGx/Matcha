@@ -7,8 +7,7 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField
 from flaskr.utils import login_required
 
-from .profile import bp
-from .user import User
+from .user import User, bp
 
 
 class BlockedUser(BaseModel):

@@ -2,3 +2,5 @@ flask
 flask-mail
 email-validator
 flask-cors
+pandas
+geopy

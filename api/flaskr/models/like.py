@@ -6,8 +6,7 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField, DatetimeField
 from flaskr.utils import login_required
 
-from .profile import bp, Profile
-from .user import User
+from .user import User, bp
 
 
 class Like(BaseModel):
@@ -25,37 +24,45 @@ class Like(BaseModel):
 
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
-        if not cls.is_profile_liked(form['host_user_id']):
+        if not cls.is_user_liked(form['host_user_id']):
             form['guest_user_id'] = session['user_id']
             response = cls._create(form, expose=False)
-            Profile.compute_popularity_score(form['host_user_id'])
+            User.compute_popularity_score(form['host_user_id'])
             return response
         else:
-            return "Profile liked already", 409
+            return "User liked already", 409
     
     @classmethod
-    def is_profile_liked(cls, user_id: int) -> bool:
+    def is_user_liked(cls, user_id: int) -> bool:
         return cls.get(
             on_col=['host_user_id', 'guest_user_id'], for_val=[user_id, session['user_id']]
         ).fetchone() is not None
 
 
-@bp.route('/likes', methods=('GET',))
+@bp.route('/received_likes', methods=('GET',))
 @login_required
-def list_likes():
+def received_likes():
     likes = Like.get('host_user_id', session['user_id']).fetchall()
+    return Like.bulk_expose(likes, 200)
+
+
+@bp.route('/given_likes', methods=('GET',))
+@login_required
+def given_likes():
+    likes = Like.get('guest_user_id', session['user_id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
 @bp.route('/<user_id>/like', methods=('POST', 'DELETE'))
 @login_required
-def like_profile(user_id: int):
+def like_user(user_id: int):
     
     if request.method == 'POST':
+        # To do: provide a user from liking himself
         return Like.create({"host_user_id": user_id})
 
     elif request.method == 'DELETE':
         Like.delete(on_col=["host_user_id", "guest_user_id"], for_val=[user_id, session['user_id']])
-        return "Profile unliked", 200
+        return "User unliked", 200
 
     

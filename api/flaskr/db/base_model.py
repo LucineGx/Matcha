@@ -46,6 +46,7 @@ class BaseModel:
         query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
         return db.execute(query, for_vals).fetchall()
     
+    # to do: implement the cascade delete properly (thinking hard about interaction zith other users, etc), or don't
     #@classmethod
     #def cascade_delete(cls, object_id: int) -> None:
     #    from flaskr.models import models

@@ -6,12 +6,12 @@ from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, BooleanField, BlobField
 from flaskr.utils import login_required
 
-from .user import User
+from .user import User, bp
 
 
 class Picture(BaseModel):
     """
-    Each picture must be linked to one user/profile.
+    Each picture must be linked to one user.
     Each user can only save a maximum of five pictures.
     Only one can be the main picture, but there don't have to be one.
 
@@ -52,10 +52,6 @@ class Picture(BaseModel):
         if user_id is None:
             user_id = session['user_id']
         return cls.get(on_col="user_id", for_val=user_id).fetchall()
-
-
-
-bp = Blueprint("picture", __name__, url_prefix="/profile")
 
 
 @bp.route('/pictures', methods=('GET',))

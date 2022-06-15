@@ -131,4 +131,4 @@ def load_logged_in_user():
     if user_id is None:
         g.user = None
     else:
-        g.user = User.get("id", user_id)
+        g.user = User.get("id", user_id).fetchone()
