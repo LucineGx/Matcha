@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from flask import Response, session, request
+from flask import Response, request, g
 
 
 from flaskr.db.base_model import BaseModel
@@ -30,7 +30,7 @@ class BlockedUser(BaseModel):
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         if not cls.is_user_blocked(form['blocked_user_id']):
-            form['user_id'] = session['user_id']
+            form['user_id'] = g.user["id"]
             return cls._create(form, expose=False)
         else:
             return "User blocked already", 409
@@ -38,14 +38,14 @@ class BlockedUser(BaseModel):
     @classmethod
     def is_user_blocked(cls, user_id: int) -> bool:
         return cls.get(
-            on_col=['blocked_user_id', 'user_id'], for_val=[user_id, session['user_id']]
+            on_col=['blocked_user_id', 'user_id'], for_val=[user_id, g.user["id"]]
         ).fetchone() is not None
 
 
 @bp.route('/blocked_users', methods=('GET',))
 @login_required
 def list_blocked_users():
-    blocked_users = BlockedUser.get('user_id', session['user_id']).fetchall()
+    blocked_users = BlockedUser.get('user_id', g.user["id"]).fetchall()
     return BlockedUser.bulk_expose(blocked_users, 200)
 
 
@@ -57,5 +57,5 @@ def block_user(user_id: int):
         return BlockedUser.create({"blocked_user_id": user_id})
     
     elif request.method == 'DELETE':
-        BlockedUser.delete(on_col=["blocked_user_id", "user_id"], for_val=[user_id, session['user_id']])
+        BlockedUser.delete(on_col=["blocked_user_id", "user_id"], for_val=[user_id, g.user["id"]])
         return "User unblocked", 200

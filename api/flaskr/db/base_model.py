@@ -1,3 +1,5 @@
+from logging.config import valid_ident
+from token import OP
 from typing import Any, Optional, Tuple, Union, List
 
 from flask import jsonify, Response
@@ -27,24 +29,51 @@ class BaseModel:
         db.commit()
 
     @classmethod
-    def bulk_expose(cls, instances: list, status_code: int) -> Tuple[Union[str, Response], int]:
+    def bulk_expose(cls, instances: list, status_code: int, custom_fields: Optional[List[str]] = None) -> Tuple[Union[str, Response], int]:
+        fields = list(cls.fields.keys())
+        if custom_fields:
+            fields += custom_fields
         return jsonify(
             [
                 {
-                    name: instance[name]
-                    for name, field in cls.fields.items()
-                    if field.expose
+                    field: instance[field]
+                    for field in fields
+                    if field in custom_fields or cls.fields[field].expose
                 }
                 for instance in instances
             ]
         ), status_code
 
     @classmethod
-    def bulk_get(cls, on_cols: List[str], for_vals: List[Any]):
+    def bulk_get(cls, on_cols: List[str], for_vals: List[Any], excluded_cols: Optional[List[str]] = None, excluded_vals: Optional[List[Any]] = None):
         db = get_db()
-        where = [f"{col} = ?" for col in on_cols]
-        query = f"SELECT * FROM {cls.name} WHERE {' AND '.join(where)}"
-        return db.execute(query, for_vals).fetchall()
+        where = [
+            f'{col} IN ({", ".join(["?" for _ in val])})'
+            if isinstance(val, list)
+            else f'{col} = ?'
+            for col, val in zip(on_cols, for_vals)
+        ]
+        if excluded_cols:
+            where += [
+                f'{col} NOT IN ({", ".join(["?" for _ in val])})'
+                if isinstance(val, list)
+                else f'{col} != ?'
+                for col, val in zip(excluded_cols, excluded_vals)
+            ]
+        query = f'SELECT * FROM {cls.name} WHERE {" AND ".join(where)}'
+        query_vals = list()
+        for val in for_vals:
+            if isinstance(val, list):
+                query_vals += val
+            else:
+                query_vals += [val]
+        if excluded_vals:
+            for val in excluded_vals:
+                if isinstance(val, list):
+                    query_vals += val
+                else:
+                    query_vals += [val]
+        return db.execute(query, query_vals).fetchall()
     
     # to do: implement the cascade delete properly (thinking hard about interaction zith other users, etc), or don't
     #@classmethod

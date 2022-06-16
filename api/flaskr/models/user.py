@@ -1,5 +1,3 @@
-import pandas as pd
-from geopy import distance
 from typing import Tuple, Union
 
 from flask import Blueprint, request, session, Response, jsonify, g
@@ -22,8 +20,8 @@ class User(BaseModel):
             max_length=64, authorized_characters="^[a-zA-Z0-9_\-.@]*$", unique=True, null=False, required=True, custom_validate=validate_email, expose=False
         ),
         "username": CharField(unique=True, required=True),
-        "first_name": CharField(required=True, expose=False),
-        "last_name": CharField(required=True, expose=False),
+        "first_name": CharField(required=True),
+        "last_name": CharField(required=True),
         "password": CharField(
             min_length=8,
             authorized_characters="^[a-zA-Z0-9_\-.#^¨%,;:?!@]*$",
@@ -80,7 +78,7 @@ def user():
             name: value
             for name, value in dict(g.user).items()
             if User.fields[name].expose
-            or name in ['email', 'first_name', 'last_name', 'custom_localisation']
+            or name in ['email', 'custom_localisation']
         }
         return jsonify(user), 200
 
@@ -95,7 +93,6 @@ def user():
         return "User successfully deleted", 200
 
 
-
 @bp.route('/<user_id>', methods=('GET',))
 @login_required
 def other_user(user_id: int):
@@ -105,45 +102,3 @@ def other_user(user_id: int):
     Visit.create({"host_user_id": user_id, "guest_user_id": g.user["id"]})
     liked = Like.is_user_liked(user_id)
     return User.expose("id", user_id, 200, custom_fields={"liked": liked})
-
-
-@bp.route('/match-me', methods=('GET',))
-@login_required
-def match_me():
-    # select only relevant genders for the user
-    search_genders = [
-        gender
-        for gender in {'male', 'female', 'other'}
-        if g.user[f'search_{gender}']
-    ]
-    matching_users = User.get('gender', search_genders).fetchall()
-    if not matching_users:
-        return "No user found for given criteria", 404
-    
-    # keep user at suitable distance from the user
-    user_geoloc = (g.user['lat'], g.user['lon'])
-    matching_users = pd.DataFrame(matching_users, columns=list(User.fields)).assign(**{
-        'distance_from_match': lambda df: (
-            pd.Series(df[['lat', 'lon']].itertuples(index=False, name=None))
-            .apply(lambda geoloc: distance.distance(geoloc, user_geoloc).km)
-        )
-    })
-    distance_threshold = float(request.args.get('distance_max', 50))
-
-    matching_users = matching_users[matching_users['distance_from_match'].le(distance_threshold)]
-
-    # Count comon tags with each matching user
-    from flaskr.models import UserTag
-    user_tags = UserTag.get('user_id', g.user['id']).fetchall()
-    if user_tags:
-        matched_tags = pd.DataFrame(UserTag.get('tag_name', [tag['tag_name'] for tag in user_tags]).fetchall(), columns=list(UserTag.fields))
-        user_id_to_num_matched_tags = matched_tags.groupby('user_id').count()['tag_name']
-        tag_points = matching_users['id'].map(user_id_to_num_matched_tags) * 2
-    else:
-        tag_points = 0
-    matching_users = matching_users.assign(**{'tag_points': tag_points})
-
-    # To do: provide a user from mathing himself
-    # To do: remove blocked and liked users from the result
-    # To do: expose tags for each user
-    return jsonify(matching_users.to_dict(orient='records')), 200

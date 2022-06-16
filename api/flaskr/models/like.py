@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from flask import Response, session, request
+from flask import Response, g, request
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField, DatetimeField
@@ -25,7 +25,7 @@ class Like(BaseModel):
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         if not cls.is_user_liked(form['host_user_id']):
-            form['guest_user_id'] = session['user_id']
+            form['guest_user_id'] = g.user['id']
             response = cls._create(form, expose=False)
             User.compute_popularity_score(form['host_user_id'])
             return response
@@ -35,21 +35,21 @@ class Like(BaseModel):
     @classmethod
     def is_user_liked(cls, user_id: int) -> bool:
         return cls.get(
-            on_col=['host_user_id', 'guest_user_id'], for_val=[user_id, session['user_id']]
+            on_col=['host_user_id', 'guest_user_id'], for_val=[user_id, g.user['id']]
         ).fetchone() is not None
 
 
 @bp.route('/received_likes', methods=('GET',))
 @login_required
 def received_likes():
-    likes = Like.get('host_user_id', session['user_id']).fetchall()
+    likes = Like.get('host_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
 @bp.route('/given_likes', methods=('GET',))
 @login_required
 def given_likes():
-    likes = Like.get('guest_user_id', session['user_id']).fetchall()
+    likes = Like.get('guest_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
@@ -62,7 +62,7 @@ def like_user(user_id: int):
         return Like.create({"host_user_id": user_id})
 
     elif request.method == 'DELETE':
-        Like.delete(on_col=["host_user_id", "guest_user_id"], for_val=[user_id, session['user_id']])
+        Like.delete(on_col=["host_user_id", "guest_user_id"], for_val=[user_id, g.user['id']])
         return "User unliked", 200
 
     
