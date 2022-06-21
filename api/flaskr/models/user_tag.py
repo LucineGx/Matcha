@@ -3,7 +3,7 @@ from typing import Tuple, Union
 from flask import Response, session, request
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import ForeignKeyField, ForeignCharField
+from flaskr.db.fields import ForeignKeyField, ForeignCharField, BooleanField
 from flaskr.models import User, Tag
 from flaskr.models.user import bp
 from flaskr.models.tag import get_or_create_tag
@@ -16,6 +16,7 @@ class UserTag(BaseModel):
     fields = {
         "user_id": ForeignKeyField(to=User),
         "tag_name": ForeignCharField(to=Tag, on='name', required=True),
+        "hidden": BooleanField()
     }
 
     @classmethod

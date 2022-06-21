@@ -30,9 +30,13 @@ class BaseModel:
 
     @classmethod
     def bulk_expose(cls, instances: list, status_code: int, custom_fields: Optional[List[str]] = None) -> Tuple[Union[str, Response], int]:
+        if instances is None:
+            return [], 200
         fields = list(cls.fields.keys())
         if custom_fields:
             fields += custom_fields
+        else:
+            custom_fields = list()
         return jsonify(
             [
                 {
