@@ -106,11 +106,11 @@ def other_user(user_id: int):
     return User.expose("id", user_id, 200, custom_fields={"liked": liked})
 
 
-@bp.route('/match-me', methods=('GET',))
-@login_required
-def match_me():
-    gender_orientation = get_gender_filter()
-    excluded_users =
+#@bp.route('/match-me', methods=('GET',))
+#@login_required
+#def match_me():
+#    gender_orientation = get_gender_filter()
+#    excluded_users =
 
 
 @bp.route('/match-me', methods=('GET',))
