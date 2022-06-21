@@ -5,19 +5,59 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 const notify = (txt) => toast(txt)
+const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 export default function Register() {
 
+  let geolocation = {
+    latitude: 0,
+    longitude: 0,
+    city: '',
+    country: ''
+  }
 
-  const registerUser = async event => {
+  function sucess(position) {
+    geolocation.latitude = position.coords.latitude
+    geolocation.longitude = position.coords.longitude
+    console.log('1', position)
+    return geolocation
+  }
+
+  function error(err) {
+    console.log('2', err)
+  }
+
+  function getGeolocation() {
+    navigator.geolocation.getCurrentPosition(sucess, error)
+    if (geolocation.latitude === 0) {
+      const res = globalThis.fetch("https://ipapi.co/json/")
+      res.then(res => res.json())
+      geolocation.latitude = data.latitude
+      geolocation.longitude = data.longitude
+      geolocation.city = data.city
+      geolocation.country = data.country
+      console.log('2', data)
+      debugger
+      return geolocation
+    }
+  }
+
+  async function registerUser(event) {
+    debugger
+    
+    getGeolocation()
     event.preventDefault()
     const { email, firstname, lastname, password } = event.target
     var formdata = new FormData()
     formdata.append('email',      email.value)
     formdata.append('first_name', firstname.value)
-    formdata.append('last_name',  lastname.value)
     formdata.append('password',   password.value)
-    console.log(password.value)
+    formdata.append('username',   username.value)
+    formdata.append('last_name',  lastname.value)
+    formdata.append('custom_localisation', 0)
+    formdata.append('lat',   geolocation.latitude)
+    formdata.append('lon',   geolocation.longitude)
+    console.log('3', geolocation)
     try {
       const res = await globalThis.fetch(
         'http://127.0.0.1:5000/auth/register',
@@ -29,14 +69,22 @@ export default function Register() {
       console.log('result', res.status)
       if (res.status === 201) {
         console.log('redirect to login page')
+        notify("Vous êtes inscrit ! un mail vous a été envoyé pour confirmer votre compte")
+        await sleep(5000)
         window.location.href = '/'
       } else {
         notify(await res.text())
       }
     } catch (e) {
-      throw Error(e)
+      console.log(e)
+      // throw Error(e)
     }
   }
+
+    const inputStyle = {
+      borderRadius:'5vh', borderWidth:'0', textAlign:'center'
+    }
+
 
   return (
     <div className={styles.bgPicture}>
@@ -48,37 +96,46 @@ export default function Register() {
         </Head>
 
         <main className={styles.main}>
-
           <h1 className={styles.title}>
             Créer un compte
           </h1>
           <form onSubmit={registerUser} style={{borderColor:'white', borderWidth:'1vh'}}>
             <input id="email" name="email"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Email'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <input id="firstname" name="firstname"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Prénom'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <input id="lastname" name="lastname"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Nom de famille'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
+            />
+            <br/>
+            <input id="username" name="username"
+              type="text"
+              // required
+              placeholder="Nom d'utilisateur"
+              style={inputStyle}
             />
             <br/>
             <input
               id="password"
               name="password"
               // type="password"
-              required
+              // required
               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[_\-.#^¨%,;:?!@])[a-zA-Z0-9_\-.#^¨%,;:?!@].{8,}"
               placeholder='Mot de passe'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <button style={{color: 'white'}} type="submit" className={styles.card}>

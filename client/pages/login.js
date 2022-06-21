@@ -9,9 +9,9 @@ const notify = (txt) => toast(txt)
 export default function Login() {
   const connect = async event => {
     event.preventDefault()
-    const { email, password } = event.target
+    const { userName, password } = event.target
     var formdata = new FormData()
-    formdata.append('email', email.value)
+    formdata.append('userName', userName.value)
     formdata.append('password', password.value)
 
     try {
@@ -46,7 +46,7 @@ export default function Login() {
         </h1>
 
         <form onSubmit={connect}>
-          <input id="email" name="email" placeholder="email@exemple.com"
+          <input id="userName" name="userName" placeholder="Nom d'utilisateur"
             style={{borderRadius:'5vh', borderWidth:'0.1vh', textAlign:'center'}}
             type="text" required
           />
