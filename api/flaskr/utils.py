@@ -1,5 +1,5 @@
 import functools
-from typing import Tuple, List, Any
+from typing import Tuple, List, Any, Optional
 
 from flask import request, g
 import pandas as pd
@@ -62,35 +62,48 @@ def get_tag_filter() -> str:
     return ''
 
 
-def get_blocked_users() -> str:
-    from flaskr.models import BlockedUser
-    user_ids = BlockedUser.get('user_id', g.user['id'], distinct='blocked_user_id').fetchall()
-    if user_ids:
-        return f'AND id NOT IN ({", ".join([str(user[0]) for user in user_ids])}) '
+def get_excluded_users(exclude_likes: bool) -> str:
+    if exclude_likes:
+        excluded_users = get_blocked_users()
+    else: 
+        excluded_users = get_blocked_users() + get_liked_users()
+    if excluded_users:
+        return f'AND id NOT IN ({", ".join([str(user[0]) for user in excluded_users])}) '
     return ''
 
 
+def get_blocked_users() -> str:
+    from flaskr.models import BlockedUser
+    return BlockedUser.get('user_id', g.user['id'], distinct='blocked_user_id').fetchall() or list()
+
+
+def get_liked_users() -> str:
+    from flaskr.models import Like
+    return Like.get('guest_user_id', g.user['id'], distinct='host_user_id').fetchall() or list()
+
+
 def execute_search(
+    raw_values: List[Any],
     gender_orientation: str,
-    age_interval: str,
-    popularity_interval: str,
-    tag_users: str,
-    blocked_users: str,
-    raw_values: List[Any]
+    excluded_users: str,
+    age_interval: str = '',
+    popularity_interval: str = '',
+    tag_users: str = '',
 ) -> str:
+    from flaskr.models import User
     query = f'''
         SELECT * FROM user
         WHERE {gender_orientation}
+        {excluded_users}
         {age_interval}
         {popularity_interval}
         {tag_users}
-        {blocked_users}
     '''
     db = get_db()
     return pd.DataFrame(db.execute(query, raw_values).fetchall(), columns=list(User.fields))
 
 
-def filter_distant_users(users: pd.DataFrame) -> pd.DataFrame:
+def filter_distant_users(users: pd.DataFrame, default_threshold: Optional[float] = None) -> pd.DataFrame:
     user_geoloc = (g.user['lat'], g.user['lon'])
     users = users.assign(**{
         'distance_from_user': lambda df: (
@@ -98,12 +111,23 @@ def filter_distant_users(users: pd.DataFrame) -> pd.DataFrame:
             .apply(lambda geoloc: distance.distance(geoloc, user_geoloc).km)
         ),
     })
-    distance_threshold = request.args.get('distance_max', None)
+    distance_threshold = request.args.get('distance_max', default_threshold)
     if distance_threshold:
-        users = users[users['distance_from_user'] <= float(distance_threshold)]
+        users = users[users['distance_from_user'].le(float(distance_threshold))]
     return users
 
 
 def assign_likes(users: pd.DataFrame) -> pd.DataFrame:
     from flaskr.models import Like
     return users.assign(**{'liked': lambda df: df['id'].apply(Like.is_user_liked)})
+
+
+def count_common_tags_score(users: pd.DataFrame) -> pd.DataFrame:
+    from flaskr.models import UserTag
+    user_tags = UserTag.get('user_id', g.user['id']).fetchall()
+    if user_tags:
+        common_tags = pd.DataFrame(
+            UserTag.get('tag_name', [tag['tag_name'] for tag in user_tags]).fetchall(),
+            columns = list(UserTag.fields)
+        )
+        

@@ -1,0 +1,41 @@
+Fields needed in the seed
+
+email
+username (= first_name ? + number)
+first_name
+last_name
+lat, lon
+short_bio
+
+public_popularity = random visit and likes
+    visit = random( 1 <= visit 25)
+    likes = random(
+        male -> 50%
+        female, other -> 30%
+    )
+
+password = random
+age = random(
+    23-35 -> 50%
+    36-43 -> 30%
+    18-22 + 44-60 -> 20%
+)
+gender = random(
+    male -> 53 %
+    female -> 43 %
+    other -> 4%
+)
+search = random(
+    opposite only   -> 60%
+    opposite + other-> 5%
+    same only       -> 5%
+    same + other    -> 12%
+    both            -> 1%
+    both + other    -> 15%
+    other only      -> 2%
+)
+
+custom_localisation = True
+confirmed = True
+confirmation_token = null
+password_reinit_token = null

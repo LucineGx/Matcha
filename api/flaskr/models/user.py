@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 import pandas as pd
 from geopy import distance
 
-from flaskr.utils import login_required
+from flaskr.utils import *
 from flaskr.db.utils import get_db
 from flaskr.db.fields import CharField, PositiveIntegerField, DatetimeField, do_nothing, BooleanField, FloatField, ChoiceField, PositiveTinyIntegerField
 from flaskr.db.base_model import BaseModel
@@ -106,11 +106,16 @@ def other_user(user_id: int):
     return User.expose("id", user_id, 200, custom_fields={"liked": liked})
 
 
-#@bp.route('/match-me', methods=('GET',))
-#@login_required
-#def match_me():
-#    gender_orientation = get_gender_filter()
-#    excluded_users =
+@bp.route('/match-me', methods=('GET',))
+@login_required
+def match_me():
+    gender_orientation = get_gender_filter()
+    excluded_users = get_excluded_users(exclude_likes=True)
+
+    users = (
+        execute_search(raw_values=list(), gender_orientation=gender_orientation, excluded_users=excluded_users)
+        .pipe(filter_distant_users, default_threshold=50)
+    )
 
 
 @bp.route('/match-me', methods=('GET',))
@@ -120,39 +125,39 @@ def match_me():
     # To do: clean code and use as much logic as possible fron search
 
     # Remove self, blocked and liked users from the result
-    # To do: uncomment those when seed is ready for greater tests
-    blocked_user_ids = [row[0] for row in BlockedUser.get('user_id', g.user['id'], distinct='blocked_user_id').fetchall()]
-    liked_user_ids = [row[0] for row in Like.get('guest_user_id', g.user['id'], distinct='host_user_id').fetchall()]
-    excluded_from_match = list(set(blocked_user_ids + liked_user_ids)) + [g.user['id']]
-
-    # select only relevant genders for the user, and reciprocally 
-    search_genders = [
-        gender
-        for gender in {'male', 'female', 'other'}
-        if g.user[f'search_{gender}']
-    ]
-    matching_users = User.bulk_get(
-        on_cols=['gender', f'search_{g.user["gender"]}'], 
-        for_vals=[search_genders, 1],
-        # To do: uncomment those when seed is ready for greater tests
-        excluded_cols=['id'],
-        excluded_vals=[excluded_from_match]
-    )
-    if not matching_users:
-        return "No user found for given criteria", 404
-    
+    ## To do: uncomment those when seed is ready for greater tests
+    #blocked_user_ids = [row[0] for row in BlockedUser.get('user_id', g.user['id'], distinct='blocked_user_id').fetchall()]
+    #liked_user_ids = [row[0] for row in Like.get('guest_user_id', g.user['id'], distinct='host_user_id').fetchall()]
+    #excluded_from_match = list(set(blocked_user_ids + liked_user_ids)) + [g.user['id']]
+#
+    ## select only relevant genders for the user, and reciprocally 
+    #search_genders = [
+    #    gender
+    #    for gender in {'male', 'female', 'other'}
+    #    if g.user[f'search_{gender}']
+    #]
+    #matching_users = User.bulk_get(
+    #    on_cols=['gender', f'search_{g.user["gender"]}'], 
+    #    for_vals=[search_genders, 1],
+    #    # To do: uncomment those when seed is ready for greater tests
+    #    excluded_cols=['id'],
+    #    excluded_vals=[excluded_from_match]
+    #)
+    #if not matching_users:
+    #    return "No user found for given criteria", 404
+    #
     # Keep user at suitable distance from the user
-    user_geoloc = (g.user['lat'], g.user['lon'])
-    matching_users = pd.DataFrame(matching_users, columns=list(User.fields)).assign(**{
-        'distance_from_match': lambda df: (
-            pd.Series(df[['lat', 'lon']].itertuples(index=False, name=None))
-            .apply(lambda geoloc: distance.distance(geoloc, user_geoloc).km)
-        ),
-        'public_popularity' : lambda df: df['public_popularity'].fillna(0)
-    })
-    distance_threshold = float(request.args.get('distance_max', 50))
+    # user_geoloc = (g.user['lat'], g.user['lon'])
+    #matching_users = pd.DataFrame(matching_users, columns=list(User.fields)).assign(**{
+    #    'distance_from_match': lambda df: (
+    #        pd.Series(df[['lat', 'lon']].itertuples(index=False, name=None))
+    #        .apply(lambda geoloc: distance.distance(geoloc, user_geoloc).km)
+    #    ),
+    #    'public_popularity' : lambda df: df['public_popularity'].fillna(0)
+    #})
+    #distance_threshold = float(request.args.get('distance_max', 50))
 
-    matching_users = matching_users[matching_users['distance_from_match'].le(distance_threshold)]
+    #matching_users = matching_users[matching_users['distance_from_match'].le(distance_threshold)]
 
     if not matching_users.empty:
         # Count comon tags with each matching user
@@ -171,7 +176,7 @@ def match_me():
         # Count popularity diff points with each matching user
         matching_users = matching_users.assign(**{
             'popularity_points': lambda df: (
-                df['public_popularity']
+                df['public_popularity'].fillna(0)
                 .apply(lambda popularity: 5 - abs(g.user['public_popularity'] - popularity) // 10)
             ).fillna(0)
         })
@@ -192,20 +197,30 @@ def match_me():
 @bp.route('/search', methods=('GET',))
 @login_required
 def search_users():
+    from flaskr.utils import (
+        get_gender_filter,
+        get_interval_filter,
+        get_tag_filter,
+        get_excluded_users,
+        execute_search,
+        filter_distant_users,
+        assign_user_tags,
+        assign_likes
+    )
     gender_orientation = get_gender_filter()
     age_interval, age_values = get_interval_filter('age')
     popularity_interval, popularity_values = get_interval_filter('public_popularity')
     tag_users = get_tag_filter()
-    blocked_users = get_blocked_users()
+    excluded_users = get_excluded_users(exclude_likes=False)
 
     users = (
-        execute_query(
-            gender_orientation,
-            age_interval,
-            popularity_interval,
-            tag_users,
-            blocked_users,
-            age_values + popularity_values
+        execute_search(
+            raw_values=age_values + popularity_values,
+            gender_orientation=gender_orientation,
+            excluded_users=excluded_users,
+            age_interval=age_interval,
+            popularity_interval=popularity_interval,
+            tag_users=tag_users,
         ).pipe(filter_distant_users)
         .pipe(assign_user_tags)
         .pipe(assign_likes)
