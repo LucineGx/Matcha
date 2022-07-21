@@ -81,6 +81,8 @@ def user():
             if User.fields[name].expose
             or name in ['email', 'custom_localisation']
         }
+        from flaskr.models import Picture
+        user['picture'] = Picture.get_user_profile_picture()
         return jsonify(user), 200
 
     elif request.method == 'PUT':
@@ -223,5 +225,6 @@ def search_users():
         ).pipe(filter_distant_users)
         .pipe(assign_user_tags)
         .pipe(assign_likes)
+        .pipe(assign_profile_picture)
     )
     return User.bulk_expose(users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tags', 'liked'])

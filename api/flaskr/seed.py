@@ -75,7 +75,7 @@ def generate_profile(fake: Faker) -> dict:
         'username': profile['username'],
         'first_name': first_name,
         'last_name': last_name,
-        'password': generate_password_hash(fake.password()),
+        'password': generate_password_hash('Azerty;123'),
         'custom_localisation': 1,
         # To do make sure the lat/lon are in France, if not use fake.local_latlng()
         'lat': float(profile['current_location'][0]),

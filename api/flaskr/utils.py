@@ -30,6 +30,14 @@ def assign_user_tags(users: pd.DataFrame) -> pd.DataFrame:
         )
     })
 
+def assign_profile_picture(users: pd.DataFrame) -> pd.DataFrame:
+    from flaskr.models import Picture
+    return users.assign(**{
+        'picture': lambda df: df['id'].apply(
+            lambda user_id: Picture.get_user_profile_picture(user_id)
+        )
+    })
+
 
 def get_gender_filter() -> str:
     search_genders = [
