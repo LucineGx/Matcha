@@ -85,7 +85,7 @@ def get_liked_users() -> str:
 def execute_search(
     raw_values: List[Any],
     gender_orientation: str,
-    excluded_users: str,
+    excluded_users: str = '',
     age_interval: str = '',
     popularity_interval: str = '',
     tag_users: str = '',

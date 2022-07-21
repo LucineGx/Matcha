@@ -42,6 +42,7 @@ password_reinit_token = null
 
 picture = random among defaults pp
 tag = random 1->10 among defaults tags
+
 public_popularity = random visit and likes
     visit = random 1->25
     likes = random(

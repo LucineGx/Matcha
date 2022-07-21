@@ -63,9 +63,8 @@ class User(BaseModel):
 
         num_likes = len(Like.get('host_user_id', user_id).fetchall())
         num_unique_visitors = len(Visit.get('host_user_id', user_id, distinct="guest_user_id").fetchall())
-        popularity_score = (num_likes / num_unique_visitors) * 100
-
-        if popularity_score > 0:
+        if num_unique_visitors:
+            popularity_score = (num_likes / num_unique_visitors) * 100
             cls.update(form={"public_popularity": popularity_score}, conditions={"id": user_id})
 
 
