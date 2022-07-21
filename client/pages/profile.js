@@ -2,7 +2,19 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
+let user
+
 export default function Home() {
+  if (typeof window === "undefined") {
+    //bypass ssr
+  } else {
+    user = JSON.parse(localStorage.getItem("userInfo"))
+    if (!user)
+      console.log('tfw') // TODO fetch user
+    else
+      console.log(user)
+  }
+  let name = user.username
   return (
     <div className={styles.container} style={{}}>
         <Head>
@@ -37,7 +49,7 @@ export default function Home() {
                 position: 'static',
                 left: '30%',
               }}/>
-              Frabrice le Carapuce
+              {name}
             </div>
             popularité
             <div style={{

@@ -11,16 +11,18 @@ export default function Login() {
     event.preventDefault()
     const { userName, password } = event.target
     var formdata = new FormData()
-    formdata.append('userName', userName.value)
+    formdata.append('username', userName.value)
     formdata.append('password', password.value)
 
     try {
-      const res = await globalThis.fetch('http://127.0.0.1:5000/auth/login', {
+      const res = await fetch('http://127.0.0.1:5000/auth/login', {
         body: formdata,
         method: 'POST'
       })
       if (res.status === 200) {
-        console.log('redirect to profile page')
+        const userinfo = await res.json()
+        console.log('redirect to profile page', userinfo)
+        localStorage.setItem('userInfo', JSON.stringify(userinfo))
         window.location.href = '/profile'
       } else {
         notify(await res.text())
