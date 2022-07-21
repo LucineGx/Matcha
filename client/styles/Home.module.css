@@ -6,7 +6,7 @@
 }
 
 .bgPicture {
-  background-image: url('../public/home.png');
+  /* background-image: url('../public/home.png'); */
   background-size:  100%;
   background-position-y: center;
   background-repeat: no-repeat;

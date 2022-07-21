@@ -6,3 +6,9 @@ api/flaskr/db_utils/__pycache__/
 client/npm-debug.log
 api/instance/flaskr.sqlite
 secrets/
+api/.venv/lib64
+api/.venv/pyvenv.cfg
+api/.venv/bin/python
+api/.venv/bin/python3
+api.log
+client.log

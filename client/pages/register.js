@@ -3,49 +3,15 @@ import styles from '../styles/register.module.css'
 import React from 'react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { getGeolocation } from './setup/geolocation'
 
 const notify = (txt) => toast(txt)
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 export default function Register() {
 
-  let geolocation = {
-    latitude: 0,
-    longitude: 0,
-    city: '',
-    country: ''
-  }
-
-  function sucess(position) {
-    geolocation.latitude = position.coords.latitude
-    geolocation.longitude = position.coords.longitude
-    console.log('1', position)
-    return geolocation
-  }
-
-  function error(err) {
-    console.log('2', err)
-  }
-
-  function getGeolocation() {
-    navigator.geolocation.getCurrentPosition(sucess, error)
-    if (geolocation.latitude === 0) {
-      const res = globalThis.fetch("https://ipapi.co/json/")
-      res.then(res => res.json())
-      geolocation.latitude = data.latitude
-      geolocation.longitude = data.longitude
-      geolocation.city = data.city
-      geolocation.country = data.country
-      console.log('2', data)
-      debugger
-      return geolocation
-    }
-  }
-
   async function registerUser(event) {
-    debugger
-    
-    getGeolocation()
+    const geolocation = await getGeolocation()
     event.preventDefault()
     const { email, firstname, lastname, password } = event.target
     var formdata = new FormData()
@@ -57,26 +23,26 @@ export default function Register() {
     formdata.append('custom_localisation', 0)
     formdata.append('lat',   geolocation.latitude)
     formdata.append('lon',   geolocation.longitude)
-    console.log('3', geolocation)
     try {
-      const res = await globalThis.fetch(
+      const res = await fetch(
         'http://127.0.0.1:5000/auth/register',
         {
           body: formdata,
           method: 'POST'
         },
       )
-      console.log('result', res.status)
+      const text = await res.text()
+      console.log('result', text)
       if (res.status === 201) {
         console.log('redirect to login page')
         notify("Vous êtes inscrit ! un mail vous a été envoyé pour confirmer votre compte")
         await sleep(5000)
         window.location.href = '/'
       } else {
-        notify(await res.text())
+        notify(text)
       }
     } catch (e) {
-      console.log(e)
+      console.log('bad result',e)
       // throw Error(e)
     }
   }
@@ -99,7 +65,12 @@ export default function Register() {
           <h1 className={styles.title}>
             Créer un compte
           </h1>
-          <form onSubmit={registerUser} style={{borderColor:'white', borderWidth:'1vh'}}>
+          <iframe name="here" id="here" style={{display: "none"}}></iframe>
+          <form
+            onSubmit={registerUser}
+            style={{borderColor:'white', borderWidth:'1vh'}}
+            target="here"
+            >
             <input id="email" name="email"
               type="text"
               // required
