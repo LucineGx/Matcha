@@ -1,5 +1,5 @@
 import functools
-from typing import Tuple, List, Any, Optional
+from typing import Tuple, List, Any, Optional, Union
 
 from flask import request, g
 import pandas as pd
@@ -70,11 +70,11 @@ def get_tag_filter() -> str:
     return ''
 
 
-def get_excluded_users(exclude_likes: bool) -> str:
-    if exclude_likes:
-        excluded_users = get_blocked_users()
-    else: 
+def get_excluded_users(with_liked: bool) -> str:
+    if with_liked:
         excluded_users = get_blocked_users() + get_liked_users()
+    else: 
+        excluded_users = get_blocked_users()
     if excluded_users:
         return f'AND id NOT IN ({", ".join([str(user[0]) for user in excluded_users])}) '
     return ''
@@ -130,12 +130,28 @@ def assign_likes(users: pd.DataFrame) -> pd.DataFrame:
     return users.assign(**{'liked': lambda df: df['id'].apply(Like.is_user_liked)})
 
 
-def count_common_tags_score(users: pd.DataFrame) -> pd.DataFrame:
+def count_common_tags_points(users: pd.DataFrame) -> Union[pd.Series, 0]:
     from flaskr.models import UserTag
+
     user_tags = UserTag.get('user_id', g.user['id']).fetchall()
     if user_tags:
         common_tags = pd.DataFrame(
             UserTag.get('tag_name', [tag['tag_name'] for tag in user_tags]).fetchall(),
             columns = list(UserTag.fields)
         )
-        
+        user_id_to_num_common_tags = common_tags.groupby('user_id').count()['tag_name']
+        return users['id'].map(user_id_to_num_common_tags) * 2
+
+    else:
+        return 0
+
+
+def count_popularity_diff_points(users: pd.DataFrame) -> pd.Series:
+    populariry_dff_points = (
+        users['public_popularity']
+        .fillna(0)
+        .apply(lambda popularity: 5 - abs(g.user['public_popularity'] - popularity) // 10)
+    )
+    populariry_dff_points.loc[populariry_dff_points < 0] = 0
+
+    return populariry_dff_points
