@@ -147,11 +147,11 @@ def count_common_tags_points(users: pd.DataFrame) -> Union[pd.Series, 0]:
 
 
 def count_popularity_diff_points(users: pd.DataFrame) -> pd.Series:
-    populariry_dff_points = (
+    populariry_diff_points = (
         users['public_popularity']
         .fillna(0)
         .apply(lambda popularity: 5 - abs(g.user['public_popularity'] - popularity) // 10)
     )
-    populariry_dff_points.loc[populariry_dff_points < 0] = 0
+    populariry_diff_points.loc[populariry_diff_points < 0] = 0
 
-    return populariry_dff_points
+    return populariry_diff_points
