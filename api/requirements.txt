@@ -4,3 +4,4 @@ email-validator
 flask-cors
 pandas
 geopy
+faker

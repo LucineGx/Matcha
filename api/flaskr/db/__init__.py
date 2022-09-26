@@ -3,6 +3,7 @@ from flask import g
 from flask.cli import with_appcontext
 
 from flaskr.models import models
+from flaskr.seed import create_seed
 
 
 def init_app(app):
@@ -14,6 +15,7 @@ def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
     app.cli.add_command(reinit_db_command)
+    app.cli.add_command(create_seed)
 
 
 @click.command('init-db')

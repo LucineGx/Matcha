@@ -24,8 +24,8 @@ class BaseModel:
         for columns (col1, col2, col3)
         """
         db = get_db()
-        query = f"INSERT INTO {cls.name} {columns} VALUES {', '.join([str(row) for row in values])};"
-        db.execute(query)
+        query = f"INSERT INTO {cls.name} {columns} VALUES {', '.join(['(' + ', '.join(['?'] * len(columns)) + ')' for _ in range(len(values))])};"
+        db.execute(query, [val for row in values for val in row])
         db.commit()
 
     @classmethod

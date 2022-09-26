@@ -21,7 +21,7 @@ def register():
             {"email": request.form["email"]}
         )
         send_confirmation_mail(request.form, token)
-        msg = "User created successfully"
+        return msg, 201
 
     return msg, status_code
 

@@ -1,0 +1,59 @@
+Fields needed in the seed
+
+email -> faker
+first_name -> faker
+last_name -> faker
+username -> faker
+lat, lon -> faker
+short_bio -> faker
+
+gender = from faker but 4% 'other'
+
+password = random
+age = random(
+    23-35 -> 60%
+    36-43 -> 25%
+    18-22 + 44-60 -> 15%
+)
+search = random(
+    if male/female
+        opposite only   -> 60%
+        opposite + other-> 5%
+        same only       -> 5%
+        same + other    -> 12%
+        both            -> 1%
+        both + other    -> 15%
+        other only      -> 2%
+    if other
+        male only       -> 5%
+        male + other    -> 22%
+        female only     -> 5%
+        female + other  -> 35%
+        both            -> 0%
+        both + other    -> 30%
+        other only      -> 3%
+)
+custom_localisation = True
+confirmed = True
+confirmation_token = null
+password_reinit_token = null
+
+----------------------------------------------
+
+picture = random among defaults pp
+tag = random 1->10 among defaults tags
+
+public_popularity = random visit and likes
+    visit = random 1->25
+    likes = random(
+        male -> 50%
+        female, other -> 30%
+    )
+
+*************************************************
+Faker package
+*************************************************
+
+create new Provider for all the random fields
+
+opti avec use_weighting = False
