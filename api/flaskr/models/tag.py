@@ -2,7 +2,6 @@ import random
 from typing import Tuple, Union
 
 from flask import Blueprint, Response
-from pyrsistent import m
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import CharField
