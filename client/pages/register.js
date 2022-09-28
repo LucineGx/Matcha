@@ -3,40 +3,56 @@ import styles from '../styles/register.module.css'
 import React from 'react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { getGeolocation } from './setup/geolocation.js'
 
 const notify = (txt) => toast(txt)
+const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 export default function Register() {
 
-
-  const registerUser = async event => {
+  async function registerUser(event) {
+    const geolocation = await getGeolocation()
     event.preventDefault()
     const { email, firstname, lastname, password } = event.target
     var formdata = new FormData()
     formdata.append('email',      email.value)
     formdata.append('first_name', firstname.value)
-    formdata.append('last_name',  lastname.value)
     formdata.append('password',   password.value)
-    console.log(password.value)
+    formdata.append('username',   username.value)
+    formdata.append('last_name',  lastname.value)
+    formdata.append('custom_localisation', 0)
+    formdata.append('lat',   geolocation.latitude)
+    formdata.append('lon',   geolocation.longitude)
     try {
-      const res = await globalThis.fetch(
+      const res = await fetch(
         'http://127.0.0.1:5000/auth/register',
         {
           body: formdata,
           method: 'POST'
         },
       )
-      console.log('result', res.status)
+      const text = await res.text()
+      console.log('result', text)
       if (res.status === 201) {
         console.log('redirect to login page')
+        notify("Vous êtes inscrit ! un mail vous a été envoyé pour confirmer votre compte")
+        await sleep(5000)
         window.location.href = '/'
       } else {
-        notify(await res.text())
+        notify(text)
       }
     } catch (e) {
-      throw Error(e)
+      console.log('bad result',e)
+      // throw Error(e)
     }
   }
+/**
+ * @type { React.CSSProperties }
+ */
+    const inputStyle = {
+      borderRadius:'5vh', borderWidth:'0', textAlign:'center'
+    }
+
 
   return (
     <div className={styles.bgPicture}>
@@ -48,37 +64,51 @@ export default function Register() {
         </Head>
 
         <main className={styles.main}>
-
           <h1 className={styles.title}>
             Créer un compte
           </h1>
-          <form onSubmit={registerUser} style={{borderColor:'white', borderWidth:'1vh'}}>
+          <iframe name="here" id="here" style={{display: "none"}}></iframe>
+          <form
+            onSubmit={registerUser}
+            style={{borderColor:'white', borderWidth:'1vh'}}
+            target="here"
+            >
             <input id="email" name="email"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Email'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <input id="firstname" name="firstname"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Prénom'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <input id="lastname" name="lastname"
-              type="text"  required
+              type="text"
+              // required
               placeholder='Nom de famille'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
+            />
+            <br/>
+            <input id="username" name="username"
+              type="text"
+              // required
+              placeholder="Nom d'utilisateur"
+              style={inputStyle}
             />
             <br/>
             <input
               id="password"
               name="password"
               // type="password"
-              required
+              // required
               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[_\-.#^¨%,;:?!@])[a-zA-Z0-9_\-.#^¨%,;:?!@].{8,}"
               placeholder='Mot de passe'
-              style={{borderRadius:'5vh', borderWidth:'0', textAlign:'center'}}
+              style={inputStyle}
             />
             <br/>
             <button style={{color: 'white'}} type="submit" className={styles.card}>

@@ -37,21 +37,18 @@ export default function Login() {
   }
   const connect = async event => {
     event.preventDefault()
-    const { userName, password } = event.target
-    const formdata = new FormData()
-    console.log(userName.value, password.value)
-    formdata.append('username', userName.value)
-    formdata.append('password', password.value)
+    const { email, password } = event.target
+    var formdata = new FormData()
+    formdata.append('email', email.value)
 
     try {
-      const res = await globalThis.fetch('http://127.0.0.1:5000/auth/login', {
+      const res = await globalThis.fetch('http://127.0.0.1:5000/auth/forgot-password', {
         body: formdata,
         method: 'POST'
       })
-      // debugger
       if (res.status === 200) {
         console.log('redirect to profile page')
-        window.location.href = '/profile'
+        window.location.href = '/login'
       } else {
         notify(await res.text())
       }
@@ -72,7 +69,7 @@ export default function Login() {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Connexion
+          Réinitialiser
         </h1>
 
         <form style={{
@@ -81,22 +78,16 @@ export default function Login() {
           flexDirection: 'column',
           padding: '1vh'
         }} onSubmit={connect}>
-          <input id="userName" name="userName" placeholder="Nom d'utilisateur"
+          <input id="email" name="email" placeholder="email@exemple.com"
             size={vhToPixel(4.8)}
             style={{...jsxStyles.base, ...jsxStyles.input}}
             type="text" required/>
           <br/>
-          <input id="password" name="password" size={vhToPixel(5)}
-            type="password" placeholder="Mot de passe"
-            style={{...jsxStyles.base, ...jsxStyles.input}}
-            required />
-          <br/>
           <button type="submit" className={styles.card}
             style={{...jsxStyles.base, ...jsxStyles.button}}>
-            Ce connecter
+            Envoyer
           </button>
         </form>
-        
       </main>
     </div>
   )

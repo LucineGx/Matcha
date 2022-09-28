@@ -57,7 +57,11 @@ class Picture(BaseModel):
     def get_user_profile_picture(cls, user_id: int = None):
         if user_id is None:
             user_id = session['user_id']
-        return cls.get(on_col=["user_id", 'main'], for_val=[user_id, 1]).fetchone()['picture']
+        result = cls.get(on_col=["user_id", 'main'], for_val=[user_id, 1]).fetchone()
+        if result :
+            return result['picture']
+        else:
+            return None
 
 
 @bp.route('/pictures', methods=('GET',))
