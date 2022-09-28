@@ -84,10 +84,17 @@ class Tag(BaseModel):
 bp = Blueprint("tag", __name__, url_prefix="/tag")
 
 
+@bp.route('/', methods=("GET",))
+@login_required
+def get_all_tags():
+    return Tag.list()
+
+
 @bp.route('/<tag_name>', methods=("GET",))
 @login_required
 def _get_or_create_tag(tag_name: str):
     return get_or_create_tag(tag_name)
+
 
 def get_or_create_tag(tag_name: str):
     tag, status_code = Tag.expose("name", tag_name, 200)

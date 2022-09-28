@@ -5,10 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ESNext",
-    "strict": true,
-    "useUnknownInCatchVariables": false,
-    "noImplicitAny": true,
-    "rootDirs": ["./pages/"]
+    "rootDirs": ["pages/**/*", "components/*"]
   },
-  "include": ["./**/*"]
+  "include": ["pages/**/*", "components/*"]
 }

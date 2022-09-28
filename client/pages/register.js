@@ -3,7 +3,7 @@ import styles from '../styles/register.module.css'
 import React from 'react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { getGeolocation } from './setup/geolocation'
+import { getGeolocation } from './setup/geolocation.js'
 
 const notify = (txt) => toast(txt)
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -13,14 +13,14 @@ export default function Register() {
   async function registerUser(event) {
     const geolocation = await getGeolocation()
     event.preventDefault()
-    const { email, firstname, lastname, password } = event.target
+    const { email, firstname, lastname, password, username } = event.target
     var formdata = new FormData()
     formdata.append('email',      email.value)
     formdata.append('first_name', firstname.value)
     formdata.append('password',   password.value)
     formdata.append('username',   username.value)
     formdata.append('last_name',  lastname.value)
-    formdata.append('custom_localisation', 0)
+    formdata.append('custom_localisation', "0")
     formdata.append('lat',   geolocation.latitude)
     formdata.append('lon',   geolocation.longitude)
     try {
@@ -46,6 +46,13 @@ export default function Register() {
       // throw Error(e)
     }
   }
+/**
+ * @type { React.CSSProperties }
+ */
+    const inputStyle = {
+      borderRadius:'5vh', borderWidth:'0', textAlign:'center'
+    }
+
 
     const inputStyle = {
       borderRadius:'5vh', borderWidth:'0', textAlign:'center'

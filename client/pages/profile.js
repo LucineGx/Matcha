@@ -1,9 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import React from 'react'
 import styles from '../styles/Home.module.css'
 
 let user
 
+/**
+ * @type {{ [key:string]: React.CSSProperties }}
+ */
 const jsxStyles = {
   mainDiv: {
     border: 'solid',
@@ -41,55 +45,19 @@ const jsxStyles = {
   }
 }
 
-/**
- * @typedef UserInfo
- * @property { number? } UserInfo.age
- * @property { Date | string } created_on
- * @property { 0 | 1 } custom_localisation - 0 or 1 if user select a position manually
- * @property { string } email
- * @property { string } first_name
- * @property { 'male' | 'female' | 'other' | null } gender
- * @property { string } id
- * @property { string } last_name
- * @property { number } lat
- * @property { number } lon
- * @property {  } public_popularity
- * @property {  } search_female
- * @property {  } search_male
- * @property {  } search_other
- * @property {  } short_bio
- * @property {  } username
- */
-
-/** @type {UserInfo} */
-const lol = {
-  "age": null,
-  "created_on": "Mon, 26 Sep 2022 12:56:01 GMT",
-  "custom_localisation": 0,
-  "email": "cyrillemaire1@gmail.com",
-  first_name: {},
-  "gender": null,
-  "id": 2,
-  "last_name": "Lemaire",
-  "lat": 48.9119,
-  "lon": 2.2875,
-  "public_popularity": null,
-  "search_female": 1,
-  "search_male": 1,
-  "search_other": 1,
-  "short_bio": null,
-  "username": "wonky_koala"
-}
+/* @type {import('./type/userInfo').UserInfo} */
 
 export default function Home() {
   if (typeof window === "undefined") {
     //bypass ssr
     return null
   } else {
+    debugger
     user = JSON.parse(localStorage.getItem("userInfo"))
-    if (!user)
-      console.log('tfw') // TODO fetch user
-    else
+    if (!user){
+      window.location.href = '/login'
+      return null
+    } else
       console.log(user)
     // const {  } 
     return (
