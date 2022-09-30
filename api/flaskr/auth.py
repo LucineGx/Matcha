@@ -71,8 +71,10 @@ def login():
 	else:
 		session.clear()
 		session['user_id'] = user['id']
-		response = User._expose(user, 200)
-		return response
+		response, status_code = User._expose(user, 200)
+		#response.headers.add('Access-Control-Allow-Credentials', 'true')
+		#response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3001')
+		return response, status_code
 
 
 @bp.route('/logout', methods=('GET',))
