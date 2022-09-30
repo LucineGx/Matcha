@@ -70,3 +70,9 @@ def create_app(test_config=None):
     app.register_blueprint(user.bp)
     app.register_blueprint(tag.bp)
     return app
+
+
+@app.after_request
+def middleware_for_response(response):
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
