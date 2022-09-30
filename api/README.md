@@ -28,10 +28,10 @@ If you need a new virtual environment, make sure to install pyenv-virtualenv, by
 ### Run the application
 - export FLASK_APP=flaskr
 - export FLASK_ENV=development
-- python3 -m flask init-db
-- python3 -m flask run
+- python3.9 -m flask init-db
+- python3.9 -m flask run
 
-you can use alias run_flask='export FLASK_APP=flaskr; export FLASK_ENV=development; python3 -c flask init-db; python3 -c flask run'
+you can use alias run_flask='export FLASK_APP=flaskr; export FLASK_ENV=development; python3.9 -c flask init-db; python3.9 -c flask run'
 
 ### Explore db
 - cd instance
