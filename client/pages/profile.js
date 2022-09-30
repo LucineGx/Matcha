@@ -60,7 +60,6 @@ export default function Profile() {
       return null
     } else
       console.log(user)
-    let lol = 0
     return (
       <div className={styles.container} style={{}}>
         <Head>

@@ -42,7 +42,7 @@ export default function Register() {
     formdata.append('password',   password.value)
     formdata.append('username',   username.value)
     formdata.append('last_name',  lastname.value)
-    formdata.append('custom_localisation', "0")
+    formdata.append('custom_localisation', 0)
     formdata.append('lat',   geolocation.latitude)
     formdata.append('lon',   geolocation.longitude)
     try {
