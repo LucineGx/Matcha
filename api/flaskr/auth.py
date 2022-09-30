@@ -72,8 +72,8 @@ def login():
 		session.clear()
 		session['user_id'] = user['id']
 		response, status_code = User._expose(user, 200)
-		#response.headers.add('Access-Control-Allow-Credentials', 'true')
-		#response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3001')
+		response.headers.add('Access-Control-Allow-Credentials', 'true')
+		response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
 		return response, status_code
 
 
