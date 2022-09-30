@@ -6,3 +6,4 @@ api/flaskr/db_utils/__pycache__/
 client/npm-debug.log
 api/instance/flaskr.sqlite
 secrets/
+Python-3.9.10*
