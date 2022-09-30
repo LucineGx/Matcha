@@ -17,4 +17,5 @@ export interface UserInfo {
   search_other: 0 | 1
   short_bio: string
   username: string
+  picture: any
 }

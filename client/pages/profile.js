@@ -2,6 +2,8 @@ import Head from 'next/head'
 import Image from 'next/image'
 import React from 'react'
 import styles from '../styles/Home.module.css'
+import { toast } from 'react-toastify'
+const notify = (txt) => toast(txt)
 
 let user
 
@@ -47,19 +49,18 @@ const jsxStyles = {
 
 /* @type {import('./type/userInfo').UserInfo} */
 
-export default function Home() {
+export default function Profile() {
   if (typeof window === "undefined") {
     //bypass ssr
     return null
   } else {
-    debugger
     user = JSON.parse(localStorage.getItem("userInfo"))
     if (!user){
       window.location.href = '/login'
       return null
     } else
       console.log(user)
-    // const {  } 
+    let lol = 0
     return (
       <div className={styles.container} style={{}}>
         <Head>
@@ -68,14 +69,14 @@ export default function Home() {
           <link rel="icon" href="/logo.png" />
         </Head>
         <div className={styles.main}>
-          <div style={jsxStyles.mainDiv}>
+          <form style={jsxStyles.mainDiv}>
             <div style={jsxStyles.pictureNameTopRow}>
               <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
               {user.username}
             </div>
             popularité
-            <div style={jsxStyles.biography}>
-              {user.short_bio || 'écrire une description ...🖊'}
+            <div style={{...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}>
+              {user.short_bio || 'écrire une description ...'}
             </div>
             <div>
               sex: {user.gender || 'inconnue'}
@@ -87,12 +88,21 @@ export default function Home() {
               inscit depuis: {user.created_on}
             </div>
             <div>
-              info: score popularité
-            </div>
-            <div>
               tag
             </div>
-          </div>
+            <button style={{
+              borderRadius:'2vh',
+              borderWidth:'0.1vh',
+              textAlign:'center',
+              paddingInline: '1vmax',
+              padding: '2vmin',
+            }} onClick={(event) => {
+              event.preventDefault()
+              window.location.href = '/updateProfile'
+            }}>
+              Modifier le profile🖊
+            </button>
+          </form>
         </div>
       </div>
     )
