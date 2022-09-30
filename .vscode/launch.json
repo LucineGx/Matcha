@@ -5,62 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-chrome",
+      "type": "chrome",
+      "name": "http://localhost:3000/",
       "request": "launch",
-      "name": "Launch Chrome against localhost",
-      "url": "http://localhost:3000/register",
-      "webRoot": "${workspaceFolder}"
-    },
-    {
-      "type": "node",
-      "name": "attach",
-      "request": "attach",
-      "skipFiles": [
-        "${workspaceFolder}/<node_internals>/**"
-      ],
-      "port": 9229
-    },
-    {
-      "type": "devtools-for-chrome",
-      "request": "attach",
-      "name": "Attach Chrome DevTools",
-      "urlFilter": "http://localhost:3000/*",
-      // "url": "http://localhost:3000/"
-    },
-    {
-      "name": "Next.js: debug server-side",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "npm run dev"
-    },
-    {
-      "name": "Next.js: debug client-side",
-      "type": "pwa-chrome",
-      "request": "launch",
-      "url": "http://localhost:3001",
+      "url": "http://localhost:3000/login"
     },
     {
       "name": "Next.js: debug full stack",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
-      "console": "integratedTerminal",
+      "command": "cd client && npm run dev",
       "serverReadyAction": {
         "pattern": "started server on .+, url: (https?://.+)",
         "uriFormat": "%s",
         "action": "debugWithChrome"
       }
-    },
-    {
-      "name": "Launch localhost",
-      "type": "firefox",
-      "request": "launch",
-      "reAttach": true,
-      "url": "http://localhost:3001/",
-      // "pathMappings": [{
-      //     "url": "http://localhost",
-      //     "path": "${workspaceFolder}"
-      // }]
     }
   ]
 }

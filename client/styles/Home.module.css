@@ -6,7 +6,7 @@
 }
 
 .bgPicture {
-  background-image: url('../public/home.png');
+  /* background-image: url('../public/home.png'); */
   background-size:  100%;
   background-position-y: center;
   background-repeat: no-repeat;
@@ -123,6 +123,15 @@
 .logo {
   height: 1em;
   margin-left: 0.5rem;
+}
+
+.button {
+  opacity: 80%
+}
+
+.button:hover {
+  opacity: 100%;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {

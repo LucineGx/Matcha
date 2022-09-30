@@ -7,3 +7,10 @@ client/npm-debug.log
 api/instance/flaskr.sqlite
 secrets/
 Python-3.9.10*
+api/.venv/lib64
+api/.venv/pyvenv.cfg
+api/.venv/bin/python
+api/.venv/bin/python3
+api.log
+client.log
+api/instance/flaskr.sqlite

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "checkJs": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ESNext",
+    "rootDirs": ["pages/**/*", "components/*"]
+  },
+  "include": ["pages/**/*", "components/*"]
+}
