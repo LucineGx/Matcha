@@ -39,7 +39,7 @@ def create_app(test_config=None):
     file there.
     """
     app = Flask(__name__, instance_relative_config=True)
-    cors = CORS(app)
+    cors = CORS(app, supports_credentials=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -70,3 +70,9 @@ def create_app(test_config=None):
     app.register_blueprint(user.bp)
     app.register_blueprint(tag.bp)
     return app
+
+
+@app.after_request
+def middleware_for_response(response):
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
