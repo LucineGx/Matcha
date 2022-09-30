@@ -46,7 +46,6 @@ export default function Login() {
         // credentials: 'include'
         // mode: 'cors'
       })
-      // debugger
       if (res.status === 200) {
         const userinfo = await res.json()
         // debugger
