@@ -50,8 +50,9 @@ export default function Register() {
         'http://127.0.0.1:5000/auth/register',
         {
           body: formdata,
-          method: 'POST'
-        },
+          method: 'POST',
+          mode: 'cors'
+      },
       )
       const text = await res.text()
       console.log('result', text)

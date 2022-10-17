@@ -43,7 +43,7 @@ export default function Login() {
       const res = await fetch('http://127.0.0.1:5000/auth/login', {
         body: formdata,
         method: 'POST',
-        // credentials: 'include'
+        credentials: 'include'
         // mode: 'cors'
       })
       // debugger
@@ -59,7 +59,7 @@ export default function Login() {
         notify(await res.text())
       }
     } catch (err) {
-      throw Error(err)
+      throw new Error(err)
     }
   }
   /** @param { number } vh */
@@ -90,7 +90,7 @@ export default function Login() {
             type="text" required/>
           <br/>
           <input id="password" name="password" size={vhToPixel(5)}
-            type="password" placeholder="Mot de passe"
+            type="text" placeholder="Mot de passe"
             style={{...jsxStyles.base, ...jsxStyles.input}}
             required />
           <br/>
