@@ -64,65 +64,29 @@ const jsxStyles = {
   }
 }
 
-/**
- * @param {UserInfo['gender']} gender
- */
-const defaultGender = (gender) => {
-  switch (gender) {
-    case 'male':
-      return 'Homme'
-    case 'female':
-      return 'Femme'
-    case 'other':
-      return 'Other'
-    default:
-      return 'Homme'
-  }
-}
-
 
 const pushUpdate = async (event) => {
   event.preventDefault()
-  const { bio, gender } = event.target
+  const { bio, gender, age, search_female, search_other, search_male } = event.target
   // notify(bio.value)
-  // notify(gender.value)
+  // notify(search_male.value)
   const data = new FormData()
-  if (user.short_bio !== bio.value)
-    data.append("short_bio", bio.value)
+  if (gender && user.gender != gender?.value)
+    data.append("gender", gender?.value)
+  if (age && user.age != age?.value)
+    data.append("age", age?.value)
+  if (search_male && user.search_male != search_male?.value)
+    data.append("search_male", search_male?.value)
+  if (search_female && user.search_female != search_female?.value)
+    data.append("search_female", search_female?.value)
+  if (search_other && user.search_other != search_other?.value)
+    data.append("search_other", search_other?.value)
+  if (bio && user.short_bio !== bio?.value)
+    data.append("short_bio", bio?.value)
   const result = await pushRequest('user/', 'PUT', data)
   console.log(result)
+  window.location.href = '/profile'
 }
-
-const getUserInfo = async () => {
-  try {
-    const res = await fetch('http://127.0.0.1:5000/user/', {
-      method: 'GET',
-      // credentials: 'same-origin',
-      credentials: 'include',
-      mode: 'cors'
-      // mode: 'same-origin'
-    })
-    if (res.status === 200) {
-      const body = await res.json()
-      console.log(body)
-      user = body
-      localStorage.removeItem("userInfo")
-      localStorage.getItem("userInfo")
-    }
-
-  } catch (e) {
-    console.error('getUserInfo:')
-    console.error(e)
-  }
-}
-
-// var formdata = new FormData();
-// formdata.append("gender", "female");
-// formdata.append("age", "33");
-// formdata.append("search_female", "1");
-// formdata.append("search_other", "1");
-// formdata.append("short_bio", "just setting up my twtr account");
-// formdata.append("search_male", "0");
 
 /**
  * @param {string} url
@@ -135,13 +99,17 @@ const pushRequest = async (url, method, data) => {
       method: method ??= 'GET',
       credentials: 'include',
       mode: 'cors',
-      body: data ??= {}
     }
+    if (method != 'GET' && data)
+      requestOptions.body = data
     const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
     if (res.status === 200) {
       const body = await res.json()
       console.log('response body', body)
-
+      user = body
+      localStorage.removeItem("userInfo")
+      localStorage.setItem("userInfo", JSON.stringify(user))
+      return body
     }
   } catch (e) {
     console.error('updateUserInfo:')
@@ -149,6 +117,10 @@ const pushRequest = async (url, method, data) => {
   }
 }
 
+const inputToDiv = (isInput) => {
+  if (isInput === 1)
+    return
+}
 
 export default function UpdateProfile() {
   /** @type {import('./type/userInfo').UserInfo} */
@@ -157,16 +129,20 @@ export default function UpdateProfile() {
     //bypass ssr
     return null
   } else {
-    user = JSON.parse(localStorage.getItem("userInfo"))
+    const localUser = localStorage.getItem("userInfo")
+    if (localUser)
+      user = JSON.parse(localUser)
     if (!user){
+      console.warn('redirect to login', user)
       window.location.href = '/login'
       return null
     } else {
       if (!user.picture) {
-        getUserInfo()
+        pushRequest('user/', 'GET')
       }
       console.log("localStorage.userInfo:", user)
       updated = {...user}
+      let lol = 0
       return (
         <div className={styles.container}>
           <Head>
@@ -178,10 +154,14 @@ export default function UpdateProfile() {
             onSubmit={pushUpdate}
           >
             <div style={jsxStyles.mainDiv}>
-              <button type='button' id='sperm' onClick={getUserInfo}>request User</button>
               <div style={jsxStyles.pictureNameTopRow}>
                 <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
-                {user.username}
+                {
+                  lol === 1 ?
+                    <input defaultValue={user.username}></input>
+                    :
+                    <p onMouseOver={() => {lol = 1}}>{user.username}</p>
+                }
               </div>
               popularité
               <textarea id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}
@@ -192,7 +172,7 @@ export default function UpdateProfile() {
                 }}
               />
               Je suis:
-              <select id='gender' defaultValue={defaultGender(user.gender)}>
+              <select id='gender' defaultValue={user.gender}>
                 <option value='male'>Homme</option>
                 <option value='female'>Femme</option>
                 <option value='other'>Other</option>
