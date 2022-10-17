@@ -7,7 +7,8 @@ import cookieCutter from 'cookie-cutter'
 
 const notify = (txt) => toast(txt)
 
-/** @type {import('./type/userInfo').UserInfo} */
+/** @typedef {import('./type/userInfo').UserInfo} UserInfo */
+/** @type {UserInfo} */
 let user
 
 /**
@@ -63,12 +64,89 @@ const jsxStyles = {
   }
 }
 
+/**
+ * @param {UserInfo['gender']} gender
+ */
+const defaultGender = (gender) => {
+  switch (gender) {
+    case 'male':
+      return 'Homme'
+    case 'female':
+      return 'Femme'
+    case 'other':
+      return 'Other'
+    default:
+      return 'Homme'
+  }
+}
 
-const pushUpdate = (event) => {
+
+const pushUpdate = async (event) => {
   event.preventDefault()
   const { bio, gender } = event.target
-  notify(bio.value)
-  notify(gender.value)
+  // notify(bio.value)
+  // notify(gender.value)
+  const data = new FormData()
+  if (user.short_bio !== bio.value)
+    data.append("short_bio", bio.value)
+  const result = await pushRequest('user/', 'PUT', data)
+  console.log(result)
+}
+
+const getUserInfo = async () => {
+  try {
+    const res = await fetch('http://127.0.0.1:5000/user/', {
+      method: 'GET',
+      // credentials: 'same-origin',
+      credentials: 'include',
+      mode: 'cors'
+      // mode: 'same-origin'
+    })
+    if (res.status === 200) {
+      const body = await res.json()
+      console.log(body)
+      user = body
+      localStorage.removeItem("userInfo")
+      localStorage.getItem("userInfo")
+    }
+
+  } catch (e) {
+    console.error('getUserInfo:')
+    console.error(e)
+  }
+}
+
+// var formdata = new FormData();
+// formdata.append("gender", "female");
+// formdata.append("age", "33");
+// formdata.append("search_female", "1");
+// formdata.append("search_other", "1");
+// formdata.append("short_bio", "just setting up my twtr account");
+// formdata.append("search_male", "0");
+
+/**
+ * @param {string} url
+ * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} method
+ */
+const pushRequest = async (url, method, data) => {
+  try {
+    /** @type {RequestInit} */
+    const requestOptions = {
+      method: method ??= 'GET',
+      credentials: 'include',
+      mode: 'cors',
+      body: data ??= {}
+    }
+    const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
+    if (res.status === 200) {
+      const body = await res.json()
+      console.log('response body', body)
+
+    }
+  } catch (e) {
+    console.error('updateUserInfo:')
+    console.error(e)
+  }
 }
 
 
@@ -85,18 +163,9 @@ export default function UpdateProfile() {
       return null
     } else {
       if (!user.picture) {
-        // const session =  localStorage.getItem("session")//cookieCutter.get()
-        // document.cookie
-        // debugger
-        // console.log('session', session)
-        fetch('http://127.0.0.1:5000/user/', {
-          method: 'GET',
-          credentials: 'include'
-        }).then((res) => res.json()).then((body) => {
-          console.log('body', body)
-        })
+        getUserInfo()
       }
-      console.log(user)
+      console.log("localStorage.userInfo:", user)
       updated = {...user}
       return (
         <div className={styles.container}>
@@ -109,6 +178,7 @@ export default function UpdateProfile() {
             onSubmit={pushUpdate}
           >
             <div style={jsxStyles.mainDiv}>
+              <button type='button' id='sperm' onClick={getUserInfo}>request User</button>
               <div style={jsxStyles.pictureNameTopRow}>
                 <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
                 {user.username}
@@ -122,24 +192,11 @@ export default function UpdateProfile() {
                 }}
               />
               Je suis:
-              <select id='gender'>
-                <option value='Homme' selected={user.gender === "male"}>Homme</option>
-                <option value='Femme' selected={(user.gender === "female")}>Femme</option>
-                <option value='Other' selected={user.gender === "other"}>Other</option>
+              <select id='gender' defaultValue={defaultGender(user.gender)}>
+                <option value='male'>Homme</option>
+                <option value='female'>Femme</option>
+                <option value='other'>Other</option>
               </select>
-              Recherche
-              <form id='search' onChange={(event)=>{
-                updated[`search_${event.target.value}`] = event.target.checked === true
-                console.log(event.target.value, updated[`search_${event.target.value}`])
-
-              }}>
-                <label>Homme ♂</label>
-                <input type='checkbox' id='male' value='male'/>
-                <label>Femme ♀</label>
-                <input type='checkbox' id='female' value='female'/>
-                <label>Other ⚧</label>
-                <input type='checkbox' id='other' value='other'/>
-              </form>
               <div>
                 tag
               </div>

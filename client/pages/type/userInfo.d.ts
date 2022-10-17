@@ -1,5 +1,4 @@
 /** @type {UserInfo} */
-
 export interface UserInfo {
   age: number
   created_on: Date | string
