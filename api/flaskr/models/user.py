@@ -44,7 +44,7 @@ class User(BaseModel):
 		"search_female": BooleanField(default=True),
 		"search_male": BooleanField(default=True),
 		"search_other": BooleanField(default=True),
-		"short_bio": CharField(max_length=280, null=True, authorized_characters="^[a-zA-Z0-9_\-.#^'¨%,;:?!@ \n]*$"),
+		"short_bio": CharField(max_length=280, null=True, authorized_characters="^[a-zA-Z0-9_\-.#^'¨%,;:?!@ \x0d\x0a]*$"),
 		"public_popularity": PositiveTinyIntegerField(max=100, null=True),
 	}
 
@@ -55,7 +55,7 @@ class User(BaseModel):
 			return cls._create(form, "username")
 		except db.IntegrityError:
 			return f"{form['email']} is already registered", 409
-	
+
 	@classmethod
 	def compute_popularity_score(cls, user_id: int) -> None:
 		from .like import Like
