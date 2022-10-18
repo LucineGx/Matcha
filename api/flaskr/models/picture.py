@@ -38,7 +38,7 @@ class Picture(BaseModel):
             user get their 'main' field set to 0.
         """
         form["user_id"] = session["user_id"]
-        if BooleanField().db_format(form['main']):
+        if BooleanField.db_format(form['main']):
             cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
         return cls._create(form, expose=False)
     
@@ -58,7 +58,7 @@ class Picture(BaseModel):
         if user_id is None:
             user_id = session['user_id']
         result = cls.get(on_col=["user_id", 'main'], for_val=[user_id, 1]).fetchone()
-        if result :
+        if result:
             return result['picture']
         else:
             return None
