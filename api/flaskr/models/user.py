@@ -4,6 +4,7 @@ from flask import Blueprint, request, session, Response, jsonify, g
 from werkzeug.security import generate_password_hash
 import pandas as pd
 from geopy import distance
+import base64
 
 from flaskr.utils import *
 from flaskr.db.utils import get_db
@@ -44,7 +45,7 @@ class User(BaseModel):
 		"search_female": BooleanField(default=True),
 		"search_male": BooleanField(default=True),
 		"search_other": BooleanField(default=True),
-		"short_bio": CharField(max_length=280, null=True, authorized_characters="^[a-zA-Z0-9_\-.#^'¨%,;:?!@ \x0d\x0a]*$"),
+		"short_bio": CharField(max_length=280, null=True, authorized_characters="^[a-zA-Zéèêàùûô0-9_\-.#^'¨%,;:?!@ \x0d\x0a]*$"),
 		"public_popularity": PositiveTinyIntegerField(max=100, null=True),
 	}
 
@@ -82,7 +83,11 @@ def user():
 			or name in ['email', 'custom_localisation']
 		}
 		from flaskr.models import Picture
-		user['picture'] = Picture.get_user_profile_picture()
+		main_picture = Picture.get_user_profile_picture()
+		if main_picture:
+			user['picture'] = base64.b64encode(main_picture).decode()
+		else:
+			user['picture'] = None
 		response, status_code = jsonify(user), 200
 		response.headers.add('Access-Control-Allow-Credentials', 'true')
 		response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')

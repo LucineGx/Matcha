@@ -1,4 +1,5 @@
 from typing import Tuple, Union
+import base64
 
 from flask import Response, Blueprint, session, request
 
@@ -38,7 +39,7 @@ class Picture(BaseModel):
             user get their 'main' field set to 0.
         """
         form["user_id"] = session["user_id"]
-        if BooleanField().db_format(form['main']):
+        if BooleanField.db_format(form['main']):
             cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
         return cls._create(form, expose=False)
     
@@ -58,7 +59,7 @@ class Picture(BaseModel):
         if user_id is None:
             user_id = session['user_id']
         result = cls.get(on_col=["user_id", 'main'], for_val=[user_id, 1]).fetchone()
-        if result :
+        if result:
             return result['picture']
         else:
             return None
@@ -68,6 +69,10 @@ class Picture(BaseModel):
 @login_required
 def get_self_pictures():
     user_pictures = Picture.get_user_pictures() or list()
+    user_pictures = [
+        base64.b64encode(picture).decode()
+        for picture in user_pictures
+    ]
     return Picture.bulk_expose(user_pictures, 200)
 
 

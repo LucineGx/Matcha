@@ -13,6 +13,3 @@ api/.venv/bin/python
 api/.venv/bin/python3
 api.log
 client.log
-instance/flaskr.sqlite
-instance/flaskr.db
-client.log
