@@ -42,7 +42,7 @@ def create_app(test_config=None):
 	CORS(app, supports_credentials=True)
 	app.config.from_mapping(
 		SECRET_KEY='dev',
-		DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+		DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite.db'),
 	)
 	app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 	app.config['MAIL_PORT'] = 465
