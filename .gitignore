@@ -4,6 +4,7 @@ api/flaskr/db/__pycache__/
 api/flaskr/models/__pycache__/
 api/flaskr/db_utils/__pycache__/
 client/npm-debug.log
+api/instance/flaskr.sqlite.db
 secrets/
 Python-3.9.10*
 api/.venv/lib64
@@ -14,3 +15,4 @@ api.log
 client.log
 instance/flaskr.sqlite
 instance/flaskr.db
+client.log

@@ -35,4 +35,4 @@ you can use alias run_flask='export FLASK_APP=flaskr; export FLASK_ENV=developme
 
 ### Explore db
 - cd instance
-- sqlite3 flaskr.sqlite
+- sqlite3 flaskr.sqlite.db
