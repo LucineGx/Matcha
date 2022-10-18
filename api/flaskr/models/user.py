@@ -84,8 +84,8 @@ def user():
 		from flaskr.models import Picture
 		user['picture'] = Picture.get_user_profile_picture()
 		response, status_code = jsonify(user), 200
-		response.headers.add("Access-Control-Allow-Credentials", 'true')
-		response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+		response.headers.add('Access-Control-Allow-Credentials', 'true')
+		response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
 		return response, status_code
 
 	elif request.method == 'PUT':

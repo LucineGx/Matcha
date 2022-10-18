@@ -40,7 +40,7 @@ if (geolocation.latitude == null) {
     geolocation.country = data.country
     console.log('api')
   } catch (e) {
-    // throw new Error(e)
+    // console.error(e)
   }
 }
 return geolocation

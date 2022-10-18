@@ -4,6 +4,7 @@ import React from 'react'
 import styles from '../styles/Home.module.css'
 import { toast } from 'react-toastify'
 import Error from 'next/error'
+
 const notify = (txt) => toast(txt)
 
 let user
@@ -62,7 +63,7 @@ const logout = async () => {
     localStorage.removeItem('userInfo')
     window.location.href = '/login'
   } catch (e) {
-    throw new Error(e)
+    console.error(e)
   }
 }
 
@@ -75,10 +76,11 @@ export default function Profile() {
   } else {
     user = JSON.parse(localStorage.getItem("userInfo"))
     if (!user){
+      // TODO request backend again before redirecting
       window.location.href = '/login'
       return null
     } else
-      console.log(user)
+      console.log('user', user)
     return (
       <div className={styles.container} style={{}}>
         <Head>

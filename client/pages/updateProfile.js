@@ -3,7 +3,9 @@ import Image from 'next/image'
 import React from 'react'
 import styles from '../styles/Home.module.css'
 import { toast } from 'react-toastify'
-import cookieCutter from 'cookie-cutter'
+import Picture from './picture'
+import { pushRequest } from './api/apiUtils'
+// import cookieCutter from 'cookie-cutter'
 
 const notify = (txt) => toast(txt)
 
@@ -84,42 +86,16 @@ const pushUpdate = async (event) => {
   if (bio && user.short_bio !== bio?.value)
     data.append("short_bio", bio?.value)
   const result = await pushRequest('user/', 'PUT', data)
-  console.log(result)
+  // console.log(result)
   window.location.href = '/profile'
 }
 
-/**
- * @param {string} url
- * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} method
- */
-const pushRequest = async (url, method, data) => {
-  try {
-    /** @type {RequestInit} */
-    const requestOptions = {
-      method: method ??= 'GET',
-      credentials: 'include',
-      mode: 'cors',
-    }
-    if (method != 'GET' && data)
-      requestOptions.body = data
-    const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
-    if (res.status === 200) {
-      const body = await res.json()
-      console.log('response body', body)
-      user = body
-      localStorage.removeItem("userInfo")
-      localStorage.setItem("userInfo", JSON.stringify(user))
-      return body
-    }
-  } catch (e) {
-    console.error('updateUserInfo:')
-    console.error(e)
-  }
-}
-
-const inputToDiv = (isInput) => {
-  if (isInput === 1)
-    return
+let lol = false
+const inputToDiv = () => {
+  if (lol)
+    return <input defaultValue={user.username}></input>
+  else
+    return <p onMouseOver={() => {lol = !lol}}>{user.username}</p>
 }
 
 export default function UpdateProfile() {
@@ -140,9 +116,8 @@ export default function UpdateProfile() {
       if (!user.picture) {
         pushRequest('user/', 'GET')
       }
-      console.log("localStorage.userInfo:", user)
+      // console.log("localStorage.userInfo:", user)
       updated = {...user}
-      let lol = 0
       return (
         <div className={styles.container}>
           <Head>
@@ -155,13 +130,10 @@ export default function UpdateProfile() {
           >
             <div style={jsxStyles.mainDiv}>
               <div style={jsxStyles.pictureNameTopRow}>
-                <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
-                {
-                  lol === 1 ?
-                    <input defaultValue={user.username}></input>
-                    :
-                    <p onMouseOver={() => {lol = 1}}>{user.username}</p>
-                }
+                {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
+                <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input>
+                {inputToDiv()} */}
+                <Picture/>
               </div>
               popularité
               <textarea id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}
