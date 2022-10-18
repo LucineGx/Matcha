@@ -1,4 +1,5 @@
 from typing import Tuple, Union
+import base64
 
 from flask import Response, Blueprint, session, request
 
@@ -68,6 +69,10 @@ class Picture(BaseModel):
 @login_required
 def get_self_pictures():
     user_pictures = Picture.get_user_pictures() or list()
+    user_pictures = [
+        base64.b64encode(picture).decode()
+        for picture in user_pictures
+    ]
     return Picture.bulk_expose(user_pictures, 200)
 
 

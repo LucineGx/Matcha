@@ -83,7 +83,11 @@ def user():
 			or name in ['email', 'custom_localisation']
 		}
 		from flaskr.models import Picture
-		user['picture'] = base64.b64encode(Picture.get_user_profile_picture()).decode()
+		main_picture = Picture.get_user_profile_picture()
+		if main_picture:
+			user['picture'] = base64.b64encode(main_picture).decode()
+		else:
+			user['picture'] = None
 		response, status_code = jsonify(user), 200
 		response.headers.add("Access-Control-Allow-Credentials", 'true')
 		response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
