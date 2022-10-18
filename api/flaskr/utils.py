@@ -11,7 +11,6 @@ from flaskr.db.utils import get_db
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        # breakpoint()
         if g.user is None:
             return "Unauthorized", 401
 

@@ -74,7 +74,6 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 @bp.route('/', methods=('GET', 'PUT', 'DELETE'))
 @login_required
 def user():
-	# breakpoint()
 	if request.method == 'GET':
 		user = {
 			name: value
@@ -82,12 +81,12 @@ def user():
 			if User.fields[name].expose
 			or name in ['email', 'custom_localisation']
 		}
-		# from flaskr.models import Picture
-		# user['picture'] = Picture.get_user_profile_picture()
-		response = jsonify(user)
-		response.headers.add('Access-Control-Allow-Credentials', 'true')
-		response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-		return response, 200
+		from flaskr.models import Picture
+		user['picture'] = Picture.get_user_profile_picture()
+		response, status_code = jsonify(user), 200
+		response.headers.add("Access-Control-Allow-Credentials", 'true')
+		response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+		return response, status_code
 
 	elif request.method == 'PUT':
 		if "username" in request.form:
