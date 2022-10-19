@@ -67,7 +67,10 @@ const jsxStyles = {
 }
 
 
-const pushUpdate = async (event) => {
+const pushUpdate = async (event, userTag) => {
+  if (event.key == 'Enter')
+    return null
+  console.log(event, userTag)
   event.preventDefault()
   const { bio, gender, age, search_female, search_other, search_male } = event.target
   // notify(bio.value)
@@ -85,8 +88,10 @@ const pushUpdate = async (event) => {
     data.append("search_other", search_other?.value)
   if (bio && localUser.short_bio !== bio?.value)
     data.append("short_bio", bio?.value)
+  // if (userTag?.length)
+  //   data.append("tags", userTag)
   await pushRequest('user/', 'PUT', data)
-  window.location.href = '/profile'
+  // window.location.href = '/profile'
 }
 
 export default function UpdateProfile() {
@@ -96,7 +101,7 @@ export default function UpdateProfile() {
   /** @type {[UserInfo, import('react').Dispatch<import('react').SetStateAction<{}>>]} */
   const [user, setUser] = useState(userbase)
   const [tags, setTags] = useState([])
-  const [userTags, setUserTags] = useState(['lol'])
+  const [userTags, setUserTags] = useState([])
   if (typeof window === "undefined") {
     //bypass ssr
     return null
@@ -113,12 +118,13 @@ export default function UpdateProfile() {
           setTags(data)
         })
         .catch((reason) => console.error(reason))
-      pushRequest('user/tags/', 'GET')
-        .then((data) => {
-          setUserTags(data)
-        })
-        .catch((reason) => console.error(reason))
+      // pushRequest('user/tags/', 'GET')
+      //   .then((data) => {
+      //     setUserTags(data)
+      //   })
+      //   .catch((reason) => console.error(reason))
     }, [])
+    console.log('user', user)
     if (!user){
       localStorage.removeItem("userInfo")
       window.location.href = '/profile'
@@ -133,7 +139,7 @@ export default function UpdateProfile() {
           <link rel="icon" href="/logo.png" />
         </Head>
         <form className={styles.main}
-          onSubmit={pushUpdate}
+          onSubmit={() => pushUpdate(event, userTags)}
           id='uno'
         >
           <div style={jsxStyles.mainDiv}>
@@ -156,23 +162,8 @@ export default function UpdateProfile() {
               <option value='female'>Femme</option>
               <option value='other'>Other</option>
             </select>
-            <button
-              id='magicButton'
-              type='submit'
-              className={styles.button}
-              form='uno'
-              style={{
-                borderRadius:'2vh',
-                borderWidth:'0.1vh',
-                textAlign:'center',
-                paddingInline: '1vmax',
-                padding: '2vmin',
-              }}
-            >Sauvgarder</button>
-          </div>
-        </form>
-        <div>
-              <>{userTags?.map(val => <>{val}&nbsp;</>)}</>
+            <div>
+              {userTags?.map(val => <>{val}&nbsp;</>)}
               <input id='loul' type='text' list='tagsList' placeholder='Ekrivey vö sentre de loizir' size={25}
                 onKeyPress={(event) => {
                   if (event.key == 'Enter')
@@ -196,6 +187,21 @@ export default function UpdateProfile() {
                 })}
               </datalist>
             </div>
+            <button
+              id='magicButton'
+              type='submit'
+              className={styles.button}
+              form='uno'
+              style={{
+                borderRadius:'2vh',
+                borderWidth:'0.1vh',
+                textAlign:'center',
+                paddingInline: '1vmax',
+                padding: '2vmin',
+              }}
+            >Sauvgarder</button>
+          </div>
+        </form>
       </div>
     )
   }
