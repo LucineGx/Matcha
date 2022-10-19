@@ -1,7 +1,7 @@
 import functools
 from typing import Tuple, List, Any, Optional, Union
 
-from flask import request, g
+from flask import request, g, current_app
 import pandas as pd
 from geopy import distance
 

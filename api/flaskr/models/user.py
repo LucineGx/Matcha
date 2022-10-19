@@ -89,8 +89,6 @@ def user():
 		else:
 			user['picture'] = None
 		response, status_code = jsonify(user), 200
-		response.headers.add("Access-Control-Allow-Credentials", 'true')
-		response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
 		return response, status_code
 
 	elif request.method == 'PUT':
@@ -136,7 +134,7 @@ def match_me():
 			.sort_values('matching_score', ascending=False)
 			.head(10)
 		)
-		matching_users = assign_user_tags(matching_users)
+		matching_users = assign_user_tags(users)
 
 	# To do: clean-up custom_fields points and score when testing phase is over
 	return User.bulk_expose(matching_users.to_dict(orient='records'), 200, custom_fields=['distance_from_match' 'tag_points', 'popularity_points', 'matching_score', 'tags'])
@@ -177,3 +175,10 @@ def search_users():
 		.pipe(assign_profile_picture)
 	)
 	return User.bulk_expose(users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tags', 'liked'])
+
+
+@bp.after_request
+def apply_caching(response):
+	response.headers.add("Access-Control-Allow-Credentials", 'true')
+	response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+	return response
