@@ -1,6 +1,7 @@
 /**
  * @param {string} url
- * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} method
+ * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} [method]
+ * @param {FormData} [data]
  */
 const pushRequest = async (url, method, data) => {
   try {
@@ -13,9 +14,9 @@ const pushRequest = async (url, method, data) => {
     if (method != 'GET' && data)
       requestOptions.body = data
     const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
-    if (res.status === 200) {
+    if (res.ok) {
       const body = await res.json()
-      // console.log('response body', body)
+      console.log('response body', body)
       const user = body
       localStorage.removeItem("userInfo")
       localStorage.setItem("userInfo", JSON.stringify(user))

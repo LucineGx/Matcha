@@ -9,16 +9,16 @@ export default function Picture (dfghjklsdfgb) {
   const [user, setUser] = useState({})
   useEffect( () => {
     pushRequest('user/', 'GET')
-      .then((res) => res.json())
       .then((data) => setUser(data))
       .catch((reason) => console.error(reason))
-  }, [user])//change empty array for image
-  console.log(user)
+  }, [])//change empty array for image
+  // console.log(user)
 
 
 
   return (
     <>
+      <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input>
       <button onMouseOver={() => setstate(state+1)} >
         {state}
       </button>
