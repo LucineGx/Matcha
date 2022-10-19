@@ -56,7 +56,7 @@ class User(BaseModel):
 			return cls._create(form, "username")
 		except db.IntegrityError:
 			return f"{form['email']} is already registered", 409
-	
+
 	@classmethod
 	def compute_popularity_score(cls, user_id: int) -> None:
 		from .like import Like

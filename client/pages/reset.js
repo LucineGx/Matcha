@@ -53,7 +53,7 @@ export default function Login() {
         notify(await res.text())
       }
     } catch (err) {
-      throw Error(err)
+      console.error(err)
     }
   }
   /** @param { number } vh */

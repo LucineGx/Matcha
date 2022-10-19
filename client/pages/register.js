@@ -66,7 +66,7 @@ export default function Register() {
       }
     } catch (e) {
       console.log('bad result',e)
-      // throw Error(e)
+      // console.error(e)
     }
   }
   /**

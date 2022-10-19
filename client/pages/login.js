@@ -43,8 +43,8 @@ export default function Login() {
       const res = await fetch('http://127.0.0.1:5000/auth/login', {
         body: formdata,
         method: 'POST',
-        credentials: 'include'
-        // mode: 'cors'
+        credentials: 'include',
+        mode: 'cors'
       })
       // debugger
       if (res.status === 200) {
@@ -59,7 +59,7 @@ export default function Login() {
         notify(await res.text())
       }
     } catch (err) {
-      throw new Error(err)
+      console.error(err)
     }
   }
   /** @param { number } vh */

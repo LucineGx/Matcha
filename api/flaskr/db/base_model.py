@@ -78,13 +78,13 @@ class BaseModel:
                 else:
                     query_vals += [val]
         return db.execute(query, query_vals).fetchall()
-    
+
     # to do: implement the cascade delete properly (thinking hard about interaction zith other users, etc), or don't
     #@classmethod
     #def cascade_delete(cls, object_id: int) -> None:
     #    from flaskr.models import models
     #    for model in models:
-    #        for field in 
+    #        for field in
 
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
@@ -236,6 +236,7 @@ class BaseModel:
             return str(e), 400
         values = list(cls.format_values(form)) + [for_val]
         query = f"UPDATE {cls.name} SET {set_statement} WHERE {where_statement}"
+        print('QUERY FAILED:', query)
         db.execute(query, values)
         db.commit()
         return cls.expose(on_col, for_val, 201)
@@ -262,7 +263,7 @@ class BaseModel:
             for name, field in cls.fields.items():
                 if field.required:
                     assert name in form, f"Field {name} is mandatory"
-    
+
     @classmethod
     def validate_uniqueness(cls, on_col: str, for_val: Any) -> None:
         duplicate = cls.get(on_col, for_val).fetchone()

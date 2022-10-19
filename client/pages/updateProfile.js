@@ -1,15 +1,17 @@
 import Head from 'next/head'
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from '../styles/Home.module.css'
 import { toast } from 'react-toastify'
-import cookieCutter from 'cookie-cutter'
+import Picture from './picture'
+import { pushRequest } from './api/apiUtils'
+// import cookieCutter from 'cookie-cutter'
 
 const notify = (txt) => toast(txt)
 
 /** @typedef {import('./type/userInfo').UserInfo} UserInfo */
 /** @type {UserInfo} */
-let user
+let localUser
 
 /**
  * @type {{ [key:string]: React.CSSProperties }}
@@ -64,158 +66,143 @@ const jsxStyles = {
   }
 }
 
-/**
- * @param {UserInfo['gender']} gender
- */
-const defaultGender = (gender) => {
-  switch (gender) {
-    case 'male':
-      return 'Homme'
-    case 'female':
-      return 'Femme'
-    case 'other':
-      return 'Other'
-    default:
-      return 'Homme'
-  }
-}
 
-
-const pushUpdate = async (event) => {
+const pushUpdate = async (event, userTag) => {
+  if (event.key == 'Enter')
+    return null
+  console.log(event, userTag)
   event.preventDefault()
-  const { bio, gender } = event.target
+  const { bio, gender, age, search_female, search_other, search_male } = event.target
   // notify(bio.value)
-  // notify(gender.value)
+  // notify(search_male.value)
   const data = new FormData()
-  if (user.short_bio !== bio.value)
-    data.append("short_bio", bio.value)
-  const result = await pushRequest('user/', 'PUT', data)
-  console.log(result)
+  if (gender && localUser.gender != gender?.value)
+    data.append("gender", gender?.value)
+  if (age && localUser.age != age?.value)
+    data.append("age", age?.value)
+  if (search_male && localUser.search_male != search_male?.value)
+    data.append("search_male", search_male?.value)
+  if (search_female && localUser.search_female != search_female?.value)
+    data.append("search_female", search_female?.value)
+  if (search_other && localUser.search_other != search_other?.value)
+    data.append("search_other", search_other?.value)
+  if (bio && localUser.short_bio !== bio?.value)
+    data.append("short_bio", bio?.value)
+  // if (userTag?.length)
+  //   data.append("tags", userTag)
+  await pushRequest('user/', 'PUT', data)
+  // window.location.href = '/profile'
 }
-
-const getUserInfo = async () => {
-  try {
-    const res = await fetch('http://127.0.0.1:5000/user/', {
-      method: 'GET',
-      // credentials: 'same-origin',
-      credentials: 'include',
-      mode: 'cors'
-      // mode: 'same-origin'
-    })
-    if (res.status === 200) {
-      const body = await res.json()
-      console.log(body)
-      user = body
-      localStorage.removeItem("userInfo")
-      localStorage.getItem("userInfo")
-    }
-
-  } catch (e) {
-    console.error('getUserInfo:')
-    console.error(e)
-  }
-}
-
-// var formdata = new FormData();
-// formdata.append("gender", "female");
-// formdata.append("age", "33");
-// formdata.append("search_female", "1");
-// formdata.append("search_other", "1");
-// formdata.append("short_bio", "just setting up my twtr account");
-// formdata.append("search_male", "0");
-
-/**
- * @param {string} url
- * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} method
- */
-const pushRequest = async (url, method, data) => {
-  try {
-    /** @type {RequestInit} */
-    const requestOptions = {
-      method: method ??= 'GET',
-      credentials: 'include',
-      mode: 'cors',
-      body: data ??= {}
-    }
-    const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
-    if (res.status === 200) {
-      const body = await res.json()
-      console.log('response body', body)
-
-    }
-  } catch (e) {
-    console.error('updateUserInfo:')
-    console.error(e)
-  }
-}
-
 
 export default function UpdateProfile() {
+
   /** @type {import('./type/userInfo').UserInfo} */
-  let updated
+  const userbase = {}
+  /** @type {[UserInfo, import('react').Dispatch<import('react').SetStateAction<{}>>]} */
+  const [user, setUser] = useState(userbase)
+  const [tags, setTags] = useState([])
+  const [userTags, setUserTags] = useState([])
   if (typeof window === "undefined") {
     //bypass ssr
     return null
   } else {
-    user = JSON.parse(localStorage.getItem("userInfo"))
+    useEffect( () => {
+      pushRequest('user/', 'GET')
+        .then((data) => {
+          setUser(data)
+          localUser = data
+        })
+        .catch((reason) => console.error(reason))
+      pushRequest('tag/', 'GET')
+        .then((data) => {
+          setTags(data)
+        })
+        .catch((reason) => console.error(reason))
+      // pushRequest('user/tags/', 'GET')
+      //   .then((data) => {
+      //     setUserTags(data)
+      //   })
+      //   .catch((reason) => console.error(reason))
+    }, [])
+    console.log('user', user)
     if (!user){
-      window.location.href = '/login'
-      return null
+      localStorage.removeItem("userInfo")
+      window.location.href = '/profile'
     } else {
-      if (!user.picture) {
-        getUserInfo()
-      }
-      console.log("localStorage.userInfo:", user)
-      updated = {...user}
-      return (
-        <div className={styles.container}>
-          <Head>
-            <title>Pokélove</title>
-            <meta name="description" content="Generated by a lot of redbull" />
-            <link rel="icon" href="/logo.png" />
-          </Head>
-          <form className={styles.main}
-            onSubmit={pushUpdate}
-          >
-            <div style={jsxStyles.mainDiv}>
-              <button type='button' id='sperm' onClick={getUserInfo}>request User</button>
-              <div style={jsxStyles.pictureNameTopRow}>
-                <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
-                {user.username}
-              </div>
-              popularité
-              <textarea id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}
-                defaultValue={user.short_bio || 'écrire une description ...'}
-                onBlur={(event) => {
-                  if (event.target.value.length === 0)
-                    event.target.value = user.short_bio || 'écrire une description ...'
+      console.log(user.short_bio)
+    }
+    return (
+      <div className={styles.container}>
+        <Head>
+          <title>Pokélove</title>
+          <meta name="description" content="Generated by a lot of redbull" />
+          <link rel="icon" href="/logo.png" />
+        </Head>
+        <form className={styles.main}
+          onSubmit={() => pushUpdate(event, userTags)}
+          id='uno'
+        >
+          <div style={jsxStyles.mainDiv}>
+            <div style={jsxStyles.pictureNameTopRow}>
+              {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
+              <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input>
+              {inputToDiv()} */}
+              <Picture/>
+            </div>
+            <textarea form='uno' id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color:'inherit'})}}
+              placeholder={user.short_bio ??= 'écrire une description ...'}
+              onBlur={(event) => {
+                if (event.target.value.length === 0)
+                  event.target.value = user.short_bio || 'écrire une description ...'
+              }}
+            />
+            Je suis:
+            <select id='gender' defaultValue={user.gender}>
+              <option value='male'>Homme</option>
+              <option value='female'>Femme</option>
+              <option value='other'>Other</option>
+            </select>
+            <div>
+              {userTags?.map(val => <>{val}&nbsp;</>)}
+              <input id='loul' type='text' list='tagsList' placeholder='Ekrivey vö sentre de loizir' size={25}
+                onKeyPress={(event) => {
+                  if (event.key == 'Enter')
+                    if (userTags?.length)
+                      setUserTags([...userTags, event.target.value])
+                    else
+                      setUserTags([event.target.value])
                 }}
               />
-              Je suis:
-              <select id='gender' defaultValue={defaultGender(user.gender)}>
-                <option value='male'>Homme</option>
-                <option value='female'>Femme</option>
-                <option value='other'>Other</option>
-              </select>
-              <div>
-                tag
-              </div>
-              <button
-                id='magicButton'
-                type='submit'
-                className={styles.button}
-                style={{
-                  borderRadius:'2vh',
-                  borderWidth:'0.1vh',
-                  textAlign:'center',
-                  paddingInline: '1vmax',
-                  padding: '2vmin',
-                }}
-              >Sauvgarder</button>
+              <datalist id='tagsList'>
+                {tags.map((value) => {
+                  return (
+                    <option
+                      id={"option"+value.name}
+                      style={{color: value.color}}
+                      value={value.name}
+                    >
+                      {value.name}
+                    </option>
+                  )
+                })}
+              </datalist>
             </div>
-          </form>
-        </div>
-      )
-    }
+            <button
+              id='magicButton'
+              type='submit'
+              className={styles.button}
+              form='uno'
+              style={{
+                borderRadius:'2vh',
+                borderWidth:'0.1vh',
+                textAlign:'center',
+                paddingInline: '1vmax',
+                padding: '2vmin',
+              }}
+            >Sauvgarder</button>
+          </div>
+        </form>
+      </div>
+    )
   }
 }
