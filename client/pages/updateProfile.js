@@ -70,7 +70,7 @@ const jsxStyles = {
 const pushUpdate = async (event, userTag) => {
   if (event.key == 'Enter')
     return null
-  // console.log(event, userTag)
+  console.log(event)
   event.preventDefault()
   const { bio, gender, age, search_female, search_other, search_male } = event.target
   // notify(bio.value)

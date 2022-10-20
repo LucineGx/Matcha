@@ -85,8 +85,8 @@ export default function Profile() {
             setUser(data)
           })
       }, [] )
-      if (!user)
-        window.location.href = '/login'
+      // if (!user)
+      //   window.location.href = '/login'
       return (
         <div className={styles.container} style={{}}>
           <Head>
@@ -101,28 +101,28 @@ export default function Profile() {
             <form style={jsxStyles.mainDiv}>
               <div style={jsxStyles.pictureNameTopRow}>
                 {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/> */}
-                <img src={`data:image/png;base64,${user.picture}`} style={jsxStyles.profilePicture}/>
-                {user.username}
+                <img src={`data:image/png;base64,${user?.picture}`} style={jsxStyles.profilePicture}/>
+                {user?.username}
               </div>
-              <div style={{...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}>
-                {user.short_bio || 'écrire une description ...'}
-              </div>
-              <div>
-                sex: {user.gender || 'inconnue'}
+              <div style={{...jsxStyles.biography, ...((!user?.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}>
+                {user?.short_bio || 'écrire une description ...'}
               </div>
               <div>
-                recherche: {user.search_male ? "♂" : null} {user.search_female ? "♀" : null} {user.search_other ? "⚧" : null}
+                sex: {user?.gender || 'inconnue'}
+              </div>
+              <div>
+                recherche: {user?.search_male ? "♂" : null} {user?.search_female ? "♀" : null} {user?.search_other ? "⚧" : null}
               </div>
               <div>
                 <p>
                   inscit depuis:
-                  <>{user.created_on}</>
+                  <>{user?.created_on}</>
                 </p>
               </div>
               <div>
                 tag
               </div>
-              score de popularité: {user.public_popularity ??= 'aucune visite sur votre profile pour le moment'}
+              score de popularité: {user?.public_popularity ??= 'aucune visite sur votre profile pour le moment'}
               <button style={{
                 borderRadius:'2vh',
                 borderWidth:'0.1vh',

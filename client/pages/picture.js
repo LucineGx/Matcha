@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react"
 import { pushRequest } from "./api/apiUtils"
+import base64 from 'base-64'
 
-
-
-export default function Picture (dfghjklsdfgb) {
-  const [state, setstate] = useState(0)
-  const [images, setImages] = useState([])
+export default function Picture () {
   const [user, setUser] = useState({})
-  const [file, setFile] = useState({})
+  const [file, setFile] = useState("")
 
   useEffect( () => {
     pushRequest('user/', 'GET')
@@ -16,20 +13,32 @@ export default function Picture (dfghjklsdfgb) {
   }, [])//change empty array for image
   // console.log(user)
 
+  const toBase64 = file => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+  })
+
   const changeHandler = (event) => {
-    setFile(event.target.files[0])
-    console.log(event.target.files[0])
+    const loadedFile = event.target.files[0]
+    toBase64(loadedFile).then((value) => setFile(value))
   }
 
   return (
     <>
-      <img src={`data:image/png;base64,${file}`}/>
-      <div>
-        <input onChange={changeHandler} type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"/>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <img style={{ borderRadius: '100vh', width: '20vmin', height: '20vmin', margin: '5vmin', position: 'static', left: '30%', display: (!file) ? 'none' : 'flex'}} src={file}/>
+        <input onChange={changeHandler} type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" placeholder="lol"/>
+        <button onClick={() => {
+          const data = new FormData()
+          data.append('main', 1)
+          data.append('picture', file)
+          pushRequest('user/picture', 'POST', data)
+            .then((value) => console.log(value))
+            .catch((error) => console.error(error))
+        }}>send nude</button>
       </div>
-      <button onMouseOver={() => setstate(state+1)} >
-        {state}
-      </button>
     </>
   )
 }
