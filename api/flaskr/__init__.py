@@ -57,7 +57,7 @@ def create_app(test_config=None):
 	app.config['MAIL_USE_TLS'] = False
 	app.config['MAIL_USE_SSL'] = True
 	app.config['SESSION_COOKIE_SAMESITE'] = "None"
-	app.config['SESSION_COOKIE_SECURE'] = True
+	app.config['SESSION_COOKIE_SECURE'] = False
 
 	if test_config is None:
 		# load the instance config if it exists, when not testing
