@@ -224,7 +224,7 @@ class BaseModel:
         return db.execute(query).fetchall()
 
     @classmethod
-    def safe_update(cls, form: dict, on_col: str, for_val: Any) -> Tuple[Union[str, Response], int]:
+    def safe_update(cls, form: dict, on_col: str, for_val: Any, expose: bool = True) -> Tuple[Union[str, Response], int]:
         db = get_db()
         if cls.get(on_col, for_val) is None:
             return "Resource not found", 404
@@ -239,7 +239,8 @@ class BaseModel:
         print('QUERY FAILED:', query)
         db.execute(query, values)
         db.commit()
-        return cls.expose(on_col, for_val, 201)
+        if expose:
+            return cls.expose(on_col, for_val, 201)
 
     @classmethod
     def update(cls, form: dict, conditions: dict) -> None:

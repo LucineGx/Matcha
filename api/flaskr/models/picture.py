@@ -1,5 +1,6 @@
 from typing import Tuple, Union
 import base64
+import binascii
 
 from flask import Response, Blueprint, session, request
 
@@ -39,8 +40,9 @@ class Picture(BaseModel):
             user get their 'main' field set to 0.
         """
         form["user_id"] = session["user_id"]
+        form["picture"] = binascii.a2b_base64(form["picture"])
         if BooleanField.db_format(form['main']):
-            cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
+            cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'], expose=False)
         return cls._create(form, expose=False)
     
     @classmethod
