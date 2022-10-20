@@ -39,7 +39,12 @@ def create_app(test_config=None):
 	file there.
 	"""
 	app = Flask(__name__, instance_relative_config=True)
-	CORS(app, supports_credentials=True)
+	cors_config = {
+		"origins": ["http://localhost:3000"],
+		"methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
+		"allow_headers": ["Authorization"]
+	}
+	CORS(app, supports_credentials=True, resources={"/*": cors_config})
 	app.config.from_mapping(
 		SECRET_KEY='dev',
 		DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite.db'),
