@@ -175,10 +175,3 @@ def search_users():
 		.pipe(assign_profile_picture)
 	)
 	return User.bulk_expose(users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tags', 'liked'])
-
-
-@bp.after_request
-def apply_caching(response):
-	response.headers.add("Access-Control-Allow-Credentials", 'true')
-	response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-	return response
