@@ -70,7 +70,7 @@ const jsxStyles = {
 const pushUpdate = async (event, userTag) => {
   if (event.key == 'Enter')
     return null
-  console.log(event, userTag)
+  // console.log(event, userTag)
   event.preventDefault()
   const { bio, gender, age, search_female, search_other, search_male } = event.target
   // notify(bio.value)
@@ -139,7 +139,7 @@ export default function UpdateProfile() {
           <link rel="icon" href="/logo.png" />
         </Head>
         <form className={styles.main}
-          onSubmit={() => pushUpdate(event, userTags)}
+          onSubmit={(event) => pushUpdate(event, userTags)}
           id='uno'
         >
           <div style={jsxStyles.mainDiv}>
