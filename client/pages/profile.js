@@ -74,7 +74,6 @@ export default function Profile() {
   let lol = {}
   /** @type {[UserInfo, import('react').Dispatch<import('react').SetStateAction<{}>>]} */
   const [user, setUser] = useState(/** @type {UserInfo}*/lol)
-
   if (typeof window === "undefined") {
     //bypass ssr
     return null
@@ -87,6 +86,18 @@ export default function Profile() {
       }, [] )
       // if (!user)
       //   window.location.href = '/login'
+      if (user && user.picture) {
+        let formatedPic = 'data:image/png;base64,'
+        const arrayPic = user.picture.split('/')
+
+        console.log(arrayPic)
+        for (let i = 0 ; arrayPic[i] ; i++) {
+          if (i >= 2){
+            formatedPic += arrayPic[i]
+          }
+        }
+        console.log(formatedPic)
+      }
       return (
         <div className={styles.container} style={{}}>
           <Head>
@@ -101,7 +112,7 @@ export default function Profile() {
             <form style={jsxStyles.mainDiv}>
               <div style={jsxStyles.pictureNameTopRow}>
                 {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/> */}
-                <img src={`data:image/png;base64,${user?.picture}`} style={jsxStyles.profilePicture}/>
+                <img src={user?.picture} style={jsxStyles.profilePicture}/>
                 {user?.username}
               </div>
               <div style={{...jsxStyles.biography, ...((!user?.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}>

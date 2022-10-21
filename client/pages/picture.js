@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { pushRequest } from "./api/apiUtils"
-import base64 from 'base-64'
 
 export default function Picture () {
   const [user, setUser] = useState({})
@@ -11,7 +10,6 @@ export default function Picture () {
       .then((data) => setUser(data))
       .catch((reason) => console.error(reason))
   }, [])//change empty array for image
-  // console.log(user)
 
   const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -32,7 +30,7 @@ export default function Picture () {
         <input onChange={changeHandler} type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" placeholder="lol"/>
         <button onClick={() => {
           const data = new FormData()
-          data.append('main', 1)
+          data.append('main', '1')
           data.append('picture', file)
           pushRequest('user/picture', 'POST', data)
             .then((value) => console.log(value))
