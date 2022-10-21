@@ -3,6 +3,8 @@ from typing import List
 from random import choices, choice, shuffle, randint
 from itertools import repeat
 from functools import partial
+import base64
+import binascii
 
 import click
 from flask.cli import with_appcontext
@@ -150,7 +152,7 @@ class CustomProvider(BaseProvider):
         root_dir = os.path.dirname(os.path.abspath(__file__))
         file_name = f'{root_dir}/../../resources/pp_{randint(1,15)}.jpg'
         with open(file_name, 'rb') as file:
-            return file.read()
+            return binascii.a2b_base64("dataimage/jpegbase64" + base64.b64encode(file.read()).decode())
     
     def tags(self) -> List[str]:
         tag_names = list(DEFAULT_TAGS.keys())
