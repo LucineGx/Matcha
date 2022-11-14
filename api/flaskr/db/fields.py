@@ -22,6 +22,8 @@ class Field:
     required: bool = False
     expose: bool = True
 
+    updatable: bool = True
+
     custom_validate: Callable = lambda n, v: True
     db_format: Callable = do_nothing
 

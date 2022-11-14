@@ -46,7 +46,7 @@ class User(BaseModel):
 		"search_male": BooleanField(default=True),
 		"search_other": BooleanField(default=True),
 		"short_bio": CharField(max_length=280, null=True, authorized_characters="^[a-zA-Zéèêàùûô0-9_\-.#^'¨%,;:?!@ \x0d\x0a]*$"),
-		"public_popularity": PositiveTinyIntegerField(max=100, null=True),
+		"public_popularity": PositiveTinyIntegerField(max=100, null=True, updatable=False),
 	}
 
 	@classmethod

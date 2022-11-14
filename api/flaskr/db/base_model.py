@@ -255,6 +255,8 @@ class BaseModel:
     @classmethod
     def validate_form(cls, form: dict, check_required: bool = True) -> None:
         for name, value in form.items():
+            if not cls.fields[name].updatable:
+                raise AssertionError(f"Field {name} cannot be updated by user.")
             assert name in cls.fields, f"Unknown field {name}"
             if not (cls.fields[name].null and value is None):
                 cls.fields[name].validate(name, value)
