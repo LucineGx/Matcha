@@ -4,7 +4,6 @@ import { pushRequest } from "./api/apiUtils"
 export default function Picture () {
   const [user, setUser] = useState({})
   const [file, setFile] = useState("")
-  const [baseString, setBaseString] = useState("")
 
   useEffect( () => {
     pushRequest('user/', 'GET')
@@ -21,19 +20,10 @@ export default function Picture () {
 
   const changeHandler = (event) => {
     const loadedFile = event.target.files[0]
+    console.log('files', Object.keys(event.target.files))
     toBase64(loadedFile).then((value) => {
       setFile(value)
-      let banana
-      let go = false
-      for (const char of value) {
-        if (go) {
-          banana += char
-        }
-        if (char === ','){
-          go = true
-        }
-      }
-      setBaseString(banana)
+      console.log('banan', value)
     })
   }
 
@@ -45,7 +35,8 @@ export default function Picture () {
         <button onClick={() => {
           const data = new FormData()
           data.append('main', '1')
-          data.append('picture', baseString)
+          data.append('picture', file)
+          console.log('type:', typeof file)
           pushRequest('user/picture', 'POST', data, {isText:true})
             .then((value) => console.log(value))
             .catch((error) => console.error(error))
