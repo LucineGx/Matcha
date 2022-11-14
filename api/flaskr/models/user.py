@@ -85,7 +85,7 @@ def user():
 		from flaskr.models import Picture
 		main_picture = Picture.get_user_profile_picture()
 		if main_picture:
-			user['picture'] = base64.b64encode(main_picture).decode()
+			user['picture'] = base64.urlsafe_b64encode(main_picture).decode()
 		else:
 			user['picture'] = None
 		response, status_code = jsonify(user), 200

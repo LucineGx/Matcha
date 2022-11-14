@@ -73,7 +73,7 @@ def get_self_pictures():
     user_pictures = Picture.get_user_pictures() or list()
     user_pictures = [dict(picture) for picture in user_pictures]
     for picture in user_pictures:
-        picture["picture"] = base64.b64encode(picture["picture"]).decode()
+        picture["picture"] = base64.urlsafe_b64encode(picture["picture"]).decode()
     return Picture.bulk_expose(user_pictures, 200)
 
 

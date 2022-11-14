@@ -152,7 +152,7 @@ class CustomProvider(BaseProvider):
         root_dir = os.path.dirname(os.path.abspath(__file__))
         file_name = f'{root_dir}/../../resources/pp_{randint(1,15)}.jpg'
         with open(file_name, 'rb') as file:
-            return binascii.a2b_base64("dataimage/jpegbase64" + base64.b64encode(file.read()).decode())
+            return binascii.a2b_base64("dataimage/jpegbase64" + base64.urlsafe_b64encode(file.read()).decode())
     
     def tags(self) -> List[str]:
         tag_names = list(DEFAULT_TAGS.keys())
