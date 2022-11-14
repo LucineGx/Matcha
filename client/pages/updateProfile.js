@@ -147,7 +147,6 @@ export default function UpdateProfile() {
               {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
               <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input>
               {inputToDiv()} */}
-              <Picture/>
             </div>
             <textarea form='uno' id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color:'inherit'})}}
               placeholder={user.short_bio ??= 'écrire une description ...'}
@@ -202,6 +201,7 @@ export default function UpdateProfile() {
             >Sauvgarder</button>
           </div>
         </form>
+        <Picture/>
       </div>
     )
   }

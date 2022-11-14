@@ -87,16 +87,11 @@ export default function Profile() {
       // if (!user)
       //   window.location.href = '/login'
       if (user && user.picture) {
-        let formatedPic = 'data:image/png;base64,'
-        const arrayPic = user.picture.split('/')
-
-        console.log(arrayPic)
-        for (let i = 0 ; arrayPic[i] ; i++) {
-          if (i >= 2){
-            formatedPic += arrayPic[i]
-          }
-        }
-        console.log(formatedPic)
+        console.log(user.picture)
+        let save = user.picture
+        save = save.replace('dataimage', 'data:image')
+        save = save.replace('/jpegbase64', 'jpeg;base64,')
+        user.picture = save
       }
       return (
         <div className={styles.container} style={{}}>

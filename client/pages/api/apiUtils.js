@@ -2,8 +2,9 @@
  * @param {string} url
  * @param {'GET' | 'POST' | 'PUT' | 'DELETE'} [method]
  * @param {FormData} [data]
+ * @param {{isText: boolean}} [options]
  */
-const pushRequest = async (url, method, data) => {
+const pushRequest = async (url, method, data, options = {isText: false}) => {
   try {
     /** @type {RequestInit} */
     const requestOptions = {
@@ -15,7 +16,7 @@ const pushRequest = async (url, method, data) => {
       requestOptions.body = data
     const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
     if (res.ok) {
-      const body = await res.json()
+      const body = (options.isText === true) ? await res.text() : await res.json()
       console.log('response body', body)
       const user = body
       localStorage.removeItem("userInfo")
