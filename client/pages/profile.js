@@ -84,10 +84,10 @@ export default function Profile() {
             setUser(data)
           })
       }, [] )
-      // if (!user)
-      //   window.location.href = '/login'
+      if (!user)
+        window.location.href = '/login'
       if (user && user.picture) {
-        console.log(user.picture)
+        console.log('picture', user.picture)
         let save = user.picture
         save = save.replace('dataimage', 'data:image')
         save = save.replace('/jpegbase64', 'jpeg;base64,')

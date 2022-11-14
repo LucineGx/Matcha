@@ -18,10 +18,7 @@ const pushRequest = async (url, method, data, options = {isText: false}) => {
     if (res.ok) {
       const body = (options.isText === true) ? await res.text() : await res.json()
       console.log('response body', body)
-      const user = body
-      localStorage.removeItem("userInfo")
-      localStorage.setItem("userInfo", JSON.stringify(user))
-      return user
+      return body
     }
   } catch (e) {
     console.error('updateUserInfo:')

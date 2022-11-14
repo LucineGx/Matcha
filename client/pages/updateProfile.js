@@ -109,8 +109,15 @@ export default function UpdateProfile() {
     useEffect( () => {
       pushRequest('user/', 'GET')
         .then((data) => {
+          if (String(data?.picture).search('undefined/') != -1){
+            data.picture = data.picture.replace('undefined/', '')
+            data.picture = `data:image/jpeg;base64,${data.picture}`
+            console.log('shuush', data.picture)
+          }
           setUser(data)
           localUser = data
+          localStorage.removeItem("userInfo")
+          localStorage.setItem("userInfo", JSON.stringify(user))
         })
         .catch((reason) => console.error(reason))
       pushRequest('tag/', 'GET')
@@ -144,9 +151,9 @@ export default function UpdateProfile() {
         >
           <div style={jsxStyles.mainDiv}>
             <div style={jsxStyles.pictureNameTopRow}>
-              {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/>
-              <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input>
-              {inputToDiv()} */}
+              scroll down plz
+              {/* <img src={user.picture} style={jsxStyles.profilePicture}/>
+              <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input> */}
             </div>
             <textarea form='uno' id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color:'inherit'})}}
               placeholder={user.short_bio ??= 'écrire une description ...'}
