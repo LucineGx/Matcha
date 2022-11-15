@@ -83,11 +83,7 @@ def user():
 			or name in ['email', 'custom_localisation']
 		}
 		from flaskr.models import Picture
-		main_picture = Picture.get_user_profile_picture()
-		if main_picture:
-			user['picture'] = base64.b64encode(main_picture).decode()
-		else:
-			user['picture'] = None
+		user["picture"] = Picture.get_user_profile_picture()
 		response, status_code = jsonify(user), 200
 		return response, status_code
 
