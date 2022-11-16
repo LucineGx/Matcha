@@ -1,6 +1,4 @@
 from typing import Tuple, Union
-import base64
-import binascii
 
 from flask import Response, Blueprint, session, request
 
@@ -40,7 +38,7 @@ class Picture(BaseModel):
             user get their 'main' field set to 0.
         """
         form["user_id"] = session["user_id"]
-        form["picture"] = binascii.a2b_base64(form["picture"])
+        form["picture"] = form["picture"].encode()
         if BooleanField.db_format(form['main']):
             cls.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'], expose=False)
         return cls._create(form, expose=False)
@@ -54,15 +52,24 @@ class Picture(BaseModel):
     def get_user_pictures(cls, user_id: int = None):
         if user_id is None:
             user_id = session['user_id']
-        return cls.get(on_col="user_id", for_val=user_id).fetchall()
-    
+        user_pictures = cls.get(on_col="user_id", for_val=user_id).fetchall() or list()
+        user_pictures = [dict(picture) for picture in user_pictures]
+        for picture in user_pictures:
+            picture["picture"] = picture["picture"].decode()
+            if not picture["picture"].startswith("data"):
+                picture["picture"] = "data:image/jpeg;base64," + picture["picture"]
+        return user_pictures
+
     @classmethod
     def get_user_profile_picture(cls, user_id: int = None):
         if user_id is None:
             user_id = session['user_id']
         result = cls.get(on_col=["user_id", 'main'], for_val=[user_id, 1]).fetchone()
         if result:
-            return result['picture']
+            picture = result['picture'].decode()
+            if not picture.startswith("data"):
+                picture = "data:image/jpeg;base64," + picture
+            return picture
         else:
             return None
 
@@ -70,18 +77,13 @@ class Picture(BaseModel):
 @bp.route('/pictures', methods=('GET',))
 @login_required
 def get_self_pictures():
-    user_pictures = Picture.get_user_pictures() or list()
-    user_pictures = [dict(picture) for picture in user_pictures]
-    for picture in user_pictures:
-        picture["picture"] = base64.b64encode(picture["picture"]).decode()
-    return Picture.bulk_expose(user_pictures, 200)
+    return Picture.bulk_expose(Picture.get_user_pictures(), 200)
 
 
 @bp.route('/<user_id>/pictures', methods=('GET',))
 @login_required
 def get_other_pictures(user_id: int):
-    user_pictures = Picture.get_user_pictures(user_id) or list()
-    return Picture.bulk_expose(user_pictures, 200)
+    return Picture.bulk_expose(Picture.get_user_pictures(user_id), 200)
 
 
 @bp.route('/picture', methods=('POST',))
@@ -101,9 +103,8 @@ def update_picture(picture_id: int):
     if request.method == 'DELETE':
         Picture.delete("id", picture_id)
     elif request.method == 'PUT':
-        if BooleanField().db_format(request.form['main']):
+        if BooleanField.db_format(request.form['main']):
             Picture.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
         Picture.safe_update(request.form, "id", picture_id)
-    user_pictures = Picture.get_user_pictures() or list()
-    return Picture.bulk_expose(user_pictures, 200)
+    return Picture.bulk_expose(Picture.get_user_pictures(), 200)
 

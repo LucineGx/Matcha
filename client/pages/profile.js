@@ -104,7 +104,7 @@ export default function Profile() {
             <form style={jsxStyles.mainDiv}>
               <div style={jsxStyles.pictureNameTopRow}>
                 {/* <img src='carapuce.jpeg' style={jsxStyles.profilePicture}/> */}
-                <img src={user?.picture} style={jsxStyles.profilePicture}/>
+                {<img src={user?.picture} style={jsxStyles.profilePicture}/>}
                 {user?.username}
               </div>
               <div style={{...jsxStyles.biography, ...((!user?.short_bio) ? {color: 'grey'} : {color: 'inherit'})}}>

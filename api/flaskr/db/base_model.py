@@ -236,7 +236,6 @@ class BaseModel:
             return str(e), 400
         values = list(cls.format_values(form)) + [for_val]
         query = f"UPDATE {cls.name} SET {set_statement} WHERE {where_statement}"
-        print('QUERY FAILED:', query)
         db.execute(query, values)
         db.commit()
         if expose:
