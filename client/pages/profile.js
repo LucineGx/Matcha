@@ -5,6 +5,7 @@ import styles from '../styles/Home.module.css'
 import { toast } from 'react-toastify'
 import Error from 'next/error'
 import { pushRequest } from './api/apiUtils'
+import { formatBase64Jpeg } from './api/formatBase64Jpeg'
 
 const notify = (txt) => toast(txt)
 
@@ -87,11 +88,7 @@ export default function Profile() {
       if (!user)
         window.location.href = '/login'
       if (user && user.picture) {
-        console.log('picture', user.picture)
-        let save = user.picture
-        save = save.replace('dataimage', 'data:image')
-        save = save.replace('/jpegbase64', 'jpeg;base64,')
-        user.picture = save
+        user.picture = formatBase64Jpeg(user.picture)
       }
       return (
         <div className={styles.container} style={{}}>

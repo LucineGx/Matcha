@@ -146,14 +146,12 @@ export default function UpdateProfile() {
           <link rel="icon" href="/logo.png" />
         </Head>
         <form className={styles.main}
-          onSubmit={(event) => pushUpdate(event, userTags)}
+          // onSubmit={(event) => pushUpdate(event, userTags)}
           id='uno'
         >
           <div style={jsxStyles.mainDiv}>
             <div style={jsxStyles.pictureNameTopRow}>
-              scroll down plz
-              {/* <img src={user.picture} style={jsxStyles.profilePicture}/>
-              <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"></input> */}
+              <Picture main={true} user={user}/>
             </div>
             <textarea form='uno' id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color:'inherit'})}}
               placeholder={user.short_bio ??= 'écrire une description ...'}
@@ -206,9 +204,12 @@ export default function UpdateProfile() {
                 padding: '2vmin',
               }}
             >Sauvgarder</button>
+            <div>
+              other picture:
+              <Picture/>
+            </div>
           </div>
         </form>
-        <Picture/>
       </div>
     )
   }

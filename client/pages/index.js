@@ -3,6 +3,7 @@ import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  window.lol1 = require('react')
   if (typeof window !== "undefined"){
     return (
       <div className={styles.bgPicture}>
