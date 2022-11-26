@@ -104,7 +104,6 @@ def update_picture(picture_id: int):
         Picture.delete("id", picture_id)
     elif request.method == 'PUT':
         if BooleanField.db_format(request.form['main']):
-            Picture.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'])
-        Picture.safe_update(request.form, "id", picture_id)
+            Picture.safe_update({'main': 0}, on_col='user_id', for_val=session['user_id'], expose=False)
+        Picture.safe_update(request.form, "id", picture_id, expose=False)
     return Picture.bulk_expose(Picture.get_user_pictures(), 200)
-
