@@ -1,9 +1,10 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import styles from '../styles/Home.module.css'
 import { toast } from 'react-toastify'
-import Picture from './picture'
+import Picture from '../components/picture/picture'
 import { pushRequest } from './api/apiUtils'
 // import cookieCutter from 'cookie-cutter'
 
@@ -66,78 +67,83 @@ const jsxStyles = {
   }
 }
 
-
-const pushUpdate = async (event, userTag) => {
-  if (event.key == 'Enter')
-    return null
-  console.log(event)
-  event.preventDefault()
-  const { bio, gender, age, search_female, search_other, search_male } = event.target
-  // notify(bio.value)
-  // notify(search_male.value)
-  const data = new FormData()
-  if (gender && localUser.gender != gender?.value)
-    data.append("gender", gender?.value)
-  if (age && localUser.age != age?.value)
-    data.append("age", age?.value)
-  if (search_male && localUser.search_male != search_male?.value)
-    data.append("search_male", search_male?.value)
-  if (search_female && localUser.search_female != search_female?.value)
-    data.append("search_female", search_female?.value)
-  if (search_other && localUser.search_other != search_other?.value)
-    data.append("search_other", search_other?.value)
-  if (bio && localUser.short_bio !== bio?.value)
-    data.append("short_bio", bio?.value)
-  // if (userTag?.length)
-  //   data.append("tags", userTag)
-  await pushRequest('user/', 'PUT', data)
-  // window.location.href = '/profile'
-}
-
 export default function UpdateProfile() {
 
   /** @type {import('./type/userInfo').UserInfo} */
-  const userbase = {}
+  let userbase = {}
+  const pictures = []
   /** @type {[UserInfo, import('react').Dispatch<import('react').SetStateAction<{}>>]} */
   const [user, setUser] = useState(userbase)
   const [tags, setTags] = useState([])
   const [userTags, setUserTags] = useState([])
+  const [userPictures, setUserPictures] = useState([])
+  const router = useRouter()
+
+  const loadData = async () => {
+    //user
+    const curUser = await pushRequest('user/', 'GET')
+    setUser(curUser)
+    localUser = curUser
+    localStorage.removeItem("userInfo")
+    localStorage.setItem("userInfo", JSON.stringify(curUser))
+    //tags
+    const tagList = await pushRequest('tag/', 'GET')
+    setTags(tagList)
+    //user pictures
+    const pic = await pushRequest(`user/${curUser.id}/pictures`, 'GET')
+    setUserPictures(pic)
+  }
+
   if (typeof window === "undefined") {
     //bypass ssr
     return null
   } else {
-    useEffect( () => {
-      pushRequest('user/', 'GET')
-        .then((data) => {
-          if (String(data?.picture).search('undefined/') != -1){
-            data.picture = data.picture.replace('undefined/', '')
-            data.picture = `data:image/jpeg;base64,${data.picture}`
-            console.log('shuush', data.picture)
-          }
-          setUser(data)
-          localUser = data
-          localStorage.removeItem("userInfo")
-          localStorage.setItem("userInfo", JSON.stringify(user))
-        })
-        .catch((reason) => console.error(reason))
-      pushRequest('tag/', 'GET')
-        .then((data) => {
-          setTags(data)
-        })
-        .catch((reason) => console.error(reason))
+    useEffect(async () => {
+        await loadData()
       // pushRequest('user/tags/', 'GET')
       //   .then((data) => {
       //     setUserTags(data)
       //   })
       //   .catch((reason) => console.error(reason))
     }, [])
-    console.log('user', user)
     if (!user){
       localStorage.removeItem("userInfo")
-      window.location.href = '/profile'
-    } else {
-      console.log(user.short_bio)
+      router.push('/profile')
     }
+    const pushUpdate = async (event, userTag) => {
+      if (event.key == 'Enter')
+        return null
+      console.log(event)
+      event.preventDefault()
+      // const { bio, gender, age, search_female, search_other, search_male } = event.target
+      // // notify(bio.value)
+      // // notify(search_male.value)
+      // const data = new FormData()
+      // if (gender && localUser.gender != gender?.value)
+      //   data.append("gender", gender?.value)
+      // if (age && localUser.age != age?.value)
+      //   data.append("age", age?.value)
+      // if (search_male && localUser.search_male != search_male?.value)
+      //   data.append("search_male", search_male?.value)
+      // if (search_female && localUser.search_female != search_female?.value)
+      //   data.append("search_female", search_female?.value)
+      // if (search_other && localUser.search_other != search_other?.value)
+      //   data.append("search_other", search_other?.value)
+      // if (bio && localUser.short_bio !== bio?.value)
+      //   data.append("short_bio", bio?.value)
+      // // if (userTag?.length)
+      // //   data.append("tags", userTag)
+      // await pushRequest('user/', 'PUT', data)
+      // router.push('/profile')
+    }
+
+    const renderPicture = userPictures.map((value, index) => (
+        <img
+          id={'picture'+index}
+          style={{display: 'flex'}}
+          src={value.picture}
+        />
+    )) || null
     return (
       <div className={styles.container}>
         <Head>
@@ -146,12 +152,12 @@ export default function UpdateProfile() {
           <link rel="icon" href="/logo.png" />
         </Head>
         <form className={styles.main}
-          // onSubmit={(event) => pushUpdate(event, userTags)}
+          onSubmit={(event) => pushUpdate(event, userTags)}
           id='uno'
         >
           <div style={jsxStyles.mainDiv}>
             <div style={jsxStyles.pictureNameTopRow}>
-              <Picture main={true} user={user}/>
+              <Picture main={true} photo={userPictures} canUpload={true}/>
             </div>
             <textarea form='uno' id='bio' maxLength={280} rows={6} style={{resize: 'none', ...jsxStyles.biography, ...((!user.short_bio) ? {color: 'grey'} : {color:'inherit'})}}
               placeholder={user.short_bio ??= 'écrire une description ...'}
@@ -206,7 +212,7 @@ export default function UpdateProfile() {
             >Sauvgarder</button>
             <div>
               other picture:
-              <Picture/>
+              <Picture photo={userPictures} canUpload={true}/>
             </div>
           </div>
         </form>

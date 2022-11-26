@@ -6,9 +6,10 @@ import { toast } from 'react-toastify'
 import Error from 'next/error'
 import { pushRequest } from './api/apiUtils'
 import { formatBase64Jpeg } from './api/formatBase64Jpeg'
+import { useRouter } from 'next/router'
+import Picture from '../components/picture/picture'
 
 const notify = (txt) => toast(txt)
-
 /**
  * @type {{ [key:string]: React.CSSProperties }}
  */
@@ -48,45 +49,57 @@ const jsxStyles = {
   }
 }
 
-const logout = async () => {
-  const requestOption = {
-    method: 'GET',
-    // credentials: 'same-origin',
-    credentials: 'include',
-    mode: 'cors'
-  }
-
-  try {
-    const response = await fetch('http://127.0.0.1:5000/auth/logout', requestOption)
-    notify(await response.text())
-    localStorage.removeItem('userInfo')
-    window.location.href = '/login'
-  } catch (e) {
-    console.error(e)
-  }
-}
-
 /** @typedef {import('./type/userInfo').UserInfo} UserInfo*/
 
+const useMountEffect = (fun) => useEffect(fun, [])
+
+
 export default function Profile() {
+  const router = useRouter()
+  const logout = async () => {
+    const requestOption = {
+      method: 'GET',
+      // credentials: 'same-origin',
+      credentials: 'include',
+      mode: 'cors'
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:5000/auth/logout', requestOption)
+      notify(await response.text())
+      localStorage.removeItem('userInfo')
+      router.push('/login')
+    } catch (e) {
+      console.error(e)
+    }
+  }
   /**
    * @type {UserInfo}
    */
   let lol = {}
+  let lil = []
   /** @type {[UserInfo, import('react').Dispatch<import('react').SetStateAction<{}>>]} */
   const [user, setUser] = useState(/** @type {UserInfo}*/lol)
+  const [userPictures, setUserPictures] = useState([])
+
+  const loadData = async () => {
+    const curUser = await pushRequest('user/', 'GET')
+    if (!curUser)
+      router.push('/login')
+    setUser(curUser)
+    const pics = await pushRequest(`user/${curUser.id}/pictures`, 'GET')
+    setUserPictures(pics)
+  }
   if (typeof window === "undefined") {
     //bypass ssr
     return null
   } else {
-      useEffect( () => {
-        pushRequest('user/', 'GET')
-          .then((data) => {
-            setUser(data)
-          })
+      useEffect( async () => {
+        await loadData()
+        return () => {}
       }, [] )
-      if (!user)
-        window.location.href = '/login'
+      if (!user && !user?.email)
+        router.push('/login')
       if (user && user.picture) {
         user.picture = formatBase64Jpeg(user.picture)
       }
@@ -134,10 +147,13 @@ export default function Profile() {
                 padding: '2vmin',
               }} onClick={(event) => {
                 event.preventDefault()
-                window.location.href = '/updateProfile'
+                router.push('/updateProfile')
               }}>
                 Modifier le profile🖊
               </button>
+              <div>
+                <Picture photo={userPictures} canUpload={false}/>
+              </div>
             </form>
           </div>
         </div>

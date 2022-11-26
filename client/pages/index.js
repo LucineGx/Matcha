@@ -1,9 +1,8 @@
 import Head from 'next/head'
-import Image from 'next/image'
+import Link from 'next/link'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
-  window.lol1 = require('react')
   if (typeof window !== "undefined"){
     return (
       <div className={styles.bgPicture}>
@@ -18,14 +17,16 @@ export default function Home() {
               Welcome to Pokélove
             </h1>
             <div className={styles.grid}>
-              <a href="./register" className={styles.card}>
-                <h2>Inscription &rarr; </h2>
-                <p>Match moucho pokemon de ta région</p>
-              </a>
-              <a href="./login" className={styles.card}>
-                <h2>Déjà inscrit ?</h2>
-                <p>Ce connecter &rarr; </p>
-              </a>
+              <div className={styles.card}>
+                <Link href="./register">
+                  <h2>Inscription</h2>
+                </Link>
+              </div>
+              <div className={styles.card}>
+                <Link href="./login">
+                  <p> Ce connecter </p>
+                </Link>
+              </div>
             </div>
           </main>
         </div>

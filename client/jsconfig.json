@@ -7,5 +7,5 @@
     "target": "ESNext",
     "rootDirs": ["pages/**/*", "components/*"]
   },
-  "include": ["pages/**/*", "components/*"]
+  "include": ["pages/**/*", "components/*", "components/Toast/picture/picture.js"]
 }

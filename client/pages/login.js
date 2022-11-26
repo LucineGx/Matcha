@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
 import styles from '../styles/Home.module.css'
 
@@ -25,6 +26,7 @@ const jsxStyles = {
 }
 
 export default function Login() {
+  const router = useRouter()
   if (typeof window === "undefined") {
     //bypass ssr
     return (
@@ -52,7 +54,7 @@ export default function Login() {
         console.log('redirect to profile page', userinfo)
         if (typeof window !== "undefined"){
           localStorage.setItem('userInfo', JSON.stringify(userinfo))
-          window.location.href = '/profile'
+          router.push('/profile')
         }
       } else {
         notify(await res.text())

@@ -5,6 +5,8 @@ import React from 'react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { getGeolocation } from './setup/geolocation.js'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 const notify = (txt) => toast(txt)
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -31,6 +33,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 }
 
 export default function Register() {
+  const router = useRouter()
 
   async function registerUser(event) {
     const geolocation = await getGeolocation()
@@ -60,7 +63,7 @@ export default function Register() {
         console.log('redirect to login page')
         notify("Vous êtes inscrit ! un mail vous a été envoyé pour confirmer votre compte")
         await sleep(5000)
-        window.location.href = '/'
+        router.push('/')
       } else {
         notify(text)
       }
@@ -146,10 +149,9 @@ export default function Register() {
           <button
             style={{...jsxStyles.base, ...jsxStyles.button}}
             type="button" className={styles.card}>
-            <a href="./login">
-              <h2>Déjà inscrit ?</h2>
+            <Link href="./login">
               <p>Se connecter</p>
-            </a>
+            </Link>
           </button>
         </form>
       </main>
