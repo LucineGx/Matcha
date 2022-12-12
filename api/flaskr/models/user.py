@@ -133,7 +133,7 @@ def match_me():
 		matching_users = assign_user_tags(users)
 
 	# To do: clean-up custom_fields points and score when testing phase is over
-	return User.bulk_expose(matching_users.to_dict(orient='records'), 200, custom_fields=['distance_from_match' 'tag_points', 'popularity_points', 'matching_score', 'tags'])
+	return User.bulk_expose(matching_users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tag_points', 'popularity_points', 'matching_score', 'tags'])
 
 	#return "No user found for given criteria", 404
 
@@ -155,7 +155,7 @@ def search_users():
 	age_interval, age_values = get_interval_filter('age')
 	popularity_interval, popularity_values = get_interval_filter('public_popularity')
 	tag_users = get_tag_filter()
-	excluded_users = get_excluded_users(exclude_likes=False)
+	excluded_users = get_excluded_users(with_liked=True)
 
 	users = (
 		execute_search(
