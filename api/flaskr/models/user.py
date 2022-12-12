@@ -115,6 +115,7 @@ def match_me():
 	def is_match_authorized():
 		if not g.user["gender"] or not g.user["age"]:
 			return False
+		return True
 	if not is_match_authorized():
 		return "Gender and age are mandatory to run match.", 401
 	gender_orientation = get_gender_filter()
