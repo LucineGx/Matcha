@@ -149,6 +149,8 @@ def count_common_tags_points(users: pd.DataFrame) -> Union[pd.Series, int]:
 
 
 def count_popularity_diff_points(users: pd.DataFrame) -> pd.Series:
+    if g.user["public_popularity"] is None:
+        return 0
     populariry_diff_points = (
         users['public_popularity']
         .fillna(0)
