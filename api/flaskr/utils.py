@@ -40,6 +40,8 @@ def assign_profile_picture(users: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_gender_filter() -> str:
+    if not g.user["gender"]:
+        return ""
     search_genders = [
         f"'{gender}'"
         for gender in {'male', 'female', 'other'}
