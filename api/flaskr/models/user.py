@@ -112,6 +112,11 @@ def other_user(user_id: int):
 @bp.route('/match-me', methods=('GET',))
 @login_required
 def match_me():
+	def is_match_authorized():
+		if not g.user["gender"] or not g.user["age"]:
+			return False
+	if not is_match_authorized():
+		return "Gender and age are mandatory to run match.", 401
 	gender_orientation = get_gender_filter()
 	# We want to exclude the already liked users from the match-me command.
 	excluded_users = get_excluded_users(with_liked=True)
