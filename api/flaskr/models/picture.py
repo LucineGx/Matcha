@@ -1,6 +1,6 @@
 from typing import Tuple, Union
 
-from flask import Response, Blueprint, session, request
+from flask import Response, session, request
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import PositiveIntegerField, ForeignKeyField, BooleanField, BlobField

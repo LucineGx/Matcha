@@ -96,11 +96,15 @@ class PositiveTinyIntegerField(PositiveIntegerField):
     def type_name(self):
         return "TINYINT"
 
+
+bool_format = lambda value: 1 if (value is not None and int(value) != 0) else 0
+
+
 @dataclass
 class BooleanField(PositiveTinyIntegerField):
     max: int = 1
     default: int = 0
-    db_format: lambda value: 1 if (value is not None and int(value) != 0) else 0
+    db_format: callable = bool_format
 
 
 @dataclass

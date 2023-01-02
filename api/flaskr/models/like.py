@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 from flask import Response, g, request
 
@@ -33,23 +33,25 @@ class Like(BaseModel):
             return "User liked already", 409
     
     @classmethod
-    def is_user_liked(cls, user_id: int) -> bool:
+    def is_user_liked(cls, liked_user_id: int, liking_user_id: Optional[int]) -> bool:
+        if not liking_user_id:
+            liking_user_id = g.user["id"]
         return cls.get(
-            on_col=['host_user_id', 'guest_user_id'], for_val=[user_id, g.user['id']]
+            on_col=['host_user_id', 'guest_user_id'], for_val=[liked_user_id, liking_user_id]
         ).fetchone() is not None
 
 
 @bp.route('/received_likes', methods=('GET',))
 @login_required
 def received_likes():
-    likes = Like.get('host_user_id', g.user['id']).fetchall()
+    likes = Like.get('guest_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
 @bp.route('/given_likes', methods=('GET',))
 @login_required
 def given_likes():
-    likes = Like.get('guest_user_id', g.user['id']).fetchall()
+    likes = Like.get('host_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
