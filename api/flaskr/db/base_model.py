@@ -174,7 +174,7 @@ class BaseModel:
         )
 
     @classmethod
-    def get(cls, on_col: Union[str, List[str]], for_val: Any, distinct: Optional[str] = None) -> Optional[dict]:
+    def get(cls, on_col: Union[str, List[str]], for_val: Any, distinct: Optional[str] = None, on_col_type: str = "AND"):
         db = get_db()
         if distinct:
             selection = f"distinct {distinct}"
@@ -194,7 +194,8 @@ class BaseModel:
                 else f"{col} = ?"
                 for col, val in zip(on_col, for_val)
             ]
-            query = f"SELECT {selection} FROM {cls.name} WHERE {' AND '.join(where)}"
+
+            query = f"SELECT {selection} FROM {cls.name} WHERE " + f" {on_col_type} ".join(where)
             return db.execute(query, for_val)
 
     @staticmethod

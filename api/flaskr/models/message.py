@@ -1,9 +1,10 @@
 from typing import Union
 
-from flask import Response, g
+from flask import Response, g, bp, request
 
 from flaskr.db.base_model import BaseModel
-from flaskr.db.fields import ForeignKeyField, DatetimeField, BooleanField, CharField
+from flaskr.db.fields import ForeignKeyField, DatetimeField, BooleanField, CharField, PositiveIntegerField
+from flaskr.utils import login_required
 
 from .user import User
 
@@ -16,6 +17,7 @@ class Message(BaseModel):
     name = "message"
 
     fields = {
+        "id": PositiveIntegerField(primary_key=True, auto_increment=True, unique=True),
         "author_user_id": ForeignKeyField(to=User),
         "destination_user_id": ForeignKeyField(to=User, required=True),
         "datetime": DatetimeField(),
@@ -26,3 +28,24 @@ class Message(BaseModel):
     @classmethod
     def create(cls, form: dict) -> tuple[Union[str, Response], int]:
         form["author_user_id"] = g.user["id"]
+        form["read"] = 0
+        return cls._create(form, expose=False)
+
+
+@bp.route("/messages/<user_id>", methods=("GET", "POST"))
+@login_required
+def get_or_create_message(user_id: int):
+    """
+    Mark as read all the messages return by GET where the current user is the destination user.
+    """
+    if request.method == "GET":
+        users = [user_id, g.user["id"]]
+        messages = Message.get(
+            on_col=["author_user_id", "destination_user_id"],
+            for_val=[users, users],
+            on_col_type="OR"
+        ).fetchall()
+        Message.update({"read": 1}, {"author_user_id": user_id, "destination_user_id": g.user["id"]})
+        return Message.bulk_expose(messages, 200)
+    if request.method == "POST":
+        return Message.create(dict(request.form))
