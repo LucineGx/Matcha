@@ -164,7 +164,7 @@ def search_users():
 			age_interval=age_interval,
 			popularity_interval=popularity_interval,
 			tag_users=tag_users,
-		).pipe(filter_distant_users)
+		).pipe(filter_distant_users, 50)
 		.pipe(assign_user_tags)
 		.pipe(assign_likes)
 		.pipe(assign_profile_picture)
