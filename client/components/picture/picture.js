@@ -154,7 +154,7 @@ export default function Picture (props) {
   }
 
   const uploadOneOrManyPicture = (toLoad) => {
-    // debugger
+    debugger
     if (currentPic.length >= 5)
       return notify('maximum of 5 picture (1 profile picture + 4')
     if (props.main === true){

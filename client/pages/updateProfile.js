@@ -20,7 +20,6 @@ let localUser
 const jsxStyles = {
   mainDiv: {
     border: 'solid',
-    borderColor: 'green',
     backgroundColor: 'grey',
     borderRadius: '2rem',
     display: 'flex',
@@ -31,25 +30,17 @@ const jsxStyles = {
     justifyContent: 'space-evenly'
   },
   pictureNameTopRow: {
+    backgroundColor: 'blue',
     fontSize: '5vh',
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
   },
-  profilePicture: {
-    borderRadius: '100vh',
-    width: '20vh',
-    marginRight: '15px',
-    position: 'static',
-    left: '30%',
-  },
   biography: {
     border: 'solid',
-    borderColor: 'white',
     backgroundColor: '#ffffff90',
     borderRadius: '2vmin',
-    padding: '10px',
-    inlineSize: '30vw',
+    padding: '1vmin',
+    inlineSize: '29vmax',
     overflow: 'hidden',
   },
   base: {

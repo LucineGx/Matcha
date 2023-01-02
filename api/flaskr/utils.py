@@ -75,7 +75,7 @@ def get_tag_filter() -> str:
 def get_excluded_users(with_liked: bool) -> str:
     if with_liked:
         excluded_users = get_blocked_users() + get_liked_users()
-    else: 
+    else:
         excluded_users = get_blocked_users()
     if excluded_users:
         return f'AND id NOT IN ({", ".join([str(user[0]) for user in excluded_users])}) '

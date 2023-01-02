@@ -17,16 +17,16 @@ export default function Home() {
               Welcome to Pokélove
             </h1>
             <div className={styles.grid}>
-              <div className={styles.card}>
-                <Link href="./register">
-                  <h2>Inscription</h2>
-                </Link>
-              </div>
-              <div className={styles.card}>
-                <Link href="./login">
-                  <p> Ce connecter </p>
-                </Link>
-              </div>
+              <Link href="./register">
+                <div className={styles.card} style={{cursor: 'pointer'}}>
+                    <h2>Inscription</h2>
+                </div>
+              </Link>
+              <Link href="./login">
+                <div className={styles.card} style={{cursor: 'pointer'}}>
+                    <p> Ce connecter </p>
+                </div>
+              </Link>
             </div>
           </main>
         </div>
