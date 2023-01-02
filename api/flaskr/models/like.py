@@ -17,7 +17,7 @@ class Like(BaseModel):
     name = "like"
 
     fields = {
-        "host_user_id": ForeignKeyField(to=User, expose=False),
+        "host_user_id": ForeignKeyField(to=User),
         "guest_user_id": ForeignKeyField(to=User),
         "liked_on": DatetimeField()
     }
@@ -44,14 +44,14 @@ class Like(BaseModel):
 @bp.route('/received_likes', methods=('GET',))
 @login_required
 def received_likes():
-    likes = Like.get('guest_user_id', g.user['id']).fetchall()
+    likes = Like.get('host_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
 @bp.route('/given_likes', methods=('GET',))
 @login_required
 def given_likes():
-    likes = Like.get('host_user_id', g.user['id']).fetchall()
+    likes = Like.get('guest_user_id', g.user['id']).fetchall()
     return Like.bulk_expose(likes, 200)
 
 
