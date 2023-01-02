@@ -1,5 +1,6 @@
 from flaskr.models.block import BlockedUser
 from flaskr.models.like import Like
+from flaskr.models.message import Message
 from flaskr.models.picture import Picture
 from flaskr.models.tag import Tag
 from flaskr.models.user import User
@@ -15,6 +16,7 @@ models = [
     User,
     UserTag,
     Picture,
+    Message,
     Like,
     Visit,
     BlockedUser
