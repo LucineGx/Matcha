@@ -69,6 +69,7 @@ def create_seed(num):
 
 def generate_profile(fake: Faker) -> dict:
     profile = fake.profile()
+    latlon = fake.local_latlng("FR")
     first_name, last_name = profile['name'].split(' ', 1)
     default_gender = 'male' if profile['sex'] == 'M' else 'female'
     gender = choices([default_gender, 'other'], [0.96, 0.04], k=1)[0]
@@ -79,9 +80,8 @@ def generate_profile(fake: Faker) -> dict:
         'last_name': last_name,
         'password': generate_password_hash('Azerty;123'),
         'custom_localisation': 1,
-        # To do make sure the lat/lon are in France, if not use fake.local_latlng()
-        'lat': float(profile['current_location'][0]),
-        'lon': float(profile['current_location'][1]),
+        'lat': float(latlon[0]),
+        'lon': float(latlon[1]),
         'confirmed': 1,
         'age': fake.age(),
         'gender': gender,

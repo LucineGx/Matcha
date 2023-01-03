@@ -164,9 +164,12 @@ def search_users():
 			age_interval=age_interval,
 			popularity_interval=popularity_interval,
 			tag_users=tag_users,
-		).pipe(filter_distant_users, 50)
+		)
+	)
+	users = (
+		users
+		.pipe(filter_distant_users, 50)
 		.pipe(assign_user_tags)
 		.pipe(assign_likes)
-		.pipe(assign_profile_picture)
 	)
 	return User.bulk_expose(users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tags', 'liked'])
