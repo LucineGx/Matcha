@@ -33,7 +33,7 @@ class Like(BaseModel):
             return "User liked already", 409
     
     @classmethod
-    def is_user_liked(cls, liked_user_id: int, liking_user_id: Optional[int]) -> bool:
+    def is_user_liked(cls, liked_user_id: int, liking_user_id: Optional[int] = None) -> bool:
         if not liking_user_id:
             liking_user_id = g.user["id"]
         return cls.get(
