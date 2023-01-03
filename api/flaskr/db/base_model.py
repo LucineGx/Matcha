@@ -174,7 +174,7 @@ class BaseModel:
         )
 
     @classmethod
-    def get(cls, on_col: Union[str, List[str]], for_val: Any, distinct: Optional[str] = None) -> Optional[dict]:
+    def get(cls, on_col: Union[str, List[str]], for_val: Any, distinct: Optional[str] = None):
         db = get_db()
         if distinct:
             selection = f"distinct {distinct}"
@@ -189,11 +189,18 @@ class BaseModel:
                 return db.execute(query, [for_val])
         elif isinstance(on_col, list):
             where = [
-                f"{col} in ?"
+                f"{col} in ({', '.join(['?' for v in val])})"
                 if isinstance(val, list)
                 else f"{col} = ?"
                 for col, val in zip(on_col, for_val)
             ]
+            tmp_for_val = []
+            for val in for_val:
+                if isinstance(val, list):
+                    tmp_for_val += val
+                else:
+                    tmp_for_val += [val]
+            for_val = tmp_for_val
             query = f"SELECT {selection} FROM {cls.name} WHERE {' AND '.join(where)}"
             return db.execute(query, for_val)
 

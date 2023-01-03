@@ -1,10 +1,5 @@
-from typing import Tuple, Union
-
-from flask import Blueprint, request, session, Response, jsonify, g
+from flask import Blueprint, session, Response, jsonify
 from werkzeug.security import generate_password_hash
-import pandas as pd
-from geopy import distance
-import base64
 
 from flaskr.utils import *
 from flaskr.db.utils import get_db
@@ -141,8 +136,6 @@ def match_me():
 	# To do: clean-up custom_fields points and score when testing phase is over
 	return User.bulk_expose(users.to_dict(orient='records'), 200, custom_fields=['distance_from_user', 'tag_points', 'popularity_points', 'matching_score', 'tags'])
 
-	#return "No user found for given criteria", 404
-
 
 @bp.route('/search', methods=('GET',))
 @login_required
@@ -171,7 +164,7 @@ def search_users():
 			age_interval=age_interval,
 			popularity_interval=popularity_interval,
 			tag_users=tag_users,
-		).pipe(filter_distant_users)
+		).pipe(filter_distant_users, 50)
 		.pipe(assign_user_tags)
 		.pipe(assign_likes)
 		.pipe(assign_profile_picture)

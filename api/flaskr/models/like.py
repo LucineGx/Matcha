@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 from flask import Response, g, request
 
@@ -17,7 +17,7 @@ class Like(BaseModel):
     name = "like"
 
     fields = {
-        "host_user_id": ForeignKeyField(to=User, expose=False),
+        "host_user_id": ForeignKeyField(to=User),
         "guest_user_id": ForeignKeyField(to=User),
         "liked_on": DatetimeField()
     }
@@ -33,9 +33,11 @@ class Like(BaseModel):
             return "User liked already", 409
     
     @classmethod
-    def is_user_liked(cls, user_id: int) -> bool:
+    def is_user_liked(cls, liked_user_id: int, liking_user_id: Optional[int]) -> bool:
+        if not liking_user_id:
+            liking_user_id = g.user["id"]
         return cls.get(
-            on_col=['host_user_id', 'guest_user_id'], for_val=[user_id, g.user['id']]
+            on_col=['host_user_id', 'guest_user_id'], for_val=[liked_user_id, liking_user_id]
         ).fetchone() is not None
 
 
