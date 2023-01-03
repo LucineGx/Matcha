@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { Input, Slider } from "antd";
-import { toast } from "react-toastify";
-import { pushRequest } from "../pages/api/apiUtils";
-import Dropdown from "./dropdown";
-import ChatPopup from "../pages/popupchat";
-import SearchEngine from "./searchEngine";
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { Input, Slider } from 'antd'
+import { toast } from 'react-toastify'
+import { pushRequest } from '../pages/api/apiUtils'
+import Dropdown from './dropdown'
+import ChatPopup from '../pages/popupchat'
+import SearchEngine from './searchEngine'
 
-const { Search } = Input;
+const { Search } = Input
 
 const notify = (txt) => toast(txt)
-function SearchBar() {
+function SearchBar(props) {
   const router = useRouter()
 
   const [ageMin, setAgeMin] = useState(18)
@@ -20,13 +20,23 @@ function SearchBar() {
   const [tags, setTags] = useState([])
   const [distance, setDistance] = useState(50)
 
-  // const onSearch = (value) => {
-  //   router.push({
-  //     pathname: "/search",
-  //     query: { q: value, min: minValue, max: maxValue },
-  //   });
-  //   // console.log('lol',router.query)
-  // };
+  const {current, update} = props
+
+  const onSearch = () => {
+    const tagsString = tags.length ? tags.join('~') : ''
+    router.push({
+      pathname: '/search',
+      query: {
+        age_min: ageMin,
+        age_max: ageMax,
+        public_popularity_min: publicPopularityMin,
+        public_popularity_max: publicPopularityMax,
+        distance_max: distance,
+        tags: tagsString,
+      },
+    })
+    console.log('lol',router.asPath.toString())
+  }
 
   const onChange = (name, value) => {
     switch (name) {
@@ -40,9 +50,9 @@ function SearchBar() {
         break;
       case 'distance':
         setDistance(value)
-        break;
+        break
       default:
-        break;
+        break
     }
   };
 
@@ -55,9 +65,7 @@ function SearchBar() {
         flexDirection:'column'
       }}>
         <SearchEngine current={tags} updateFunction={setTags}/>
-        <button onClick={() => {
-          console.log('tags:', tags)
-        }}>pouette</button>
+        <button onClick={onSearch}>pouette</button>
       </div>
       {/* <ChatPopup/> */}
       <div style={{
@@ -66,7 +74,7 @@ function SearchBar() {
       >
         { makeSilder('age', 18, 200, onChange, {min:ageMin, max:ageMax}, 'Years old' ) }
         { makeSilder('public_popularity', 0, 100, onChange, {min:publicPopularityMin, max:publicPopularityMax}, '%' ) }
-        { makeSilder('distance', null, 1000, onChange, distance, 'Km') }
+        { makeSilder('distance', null, 40075, onChange, distance, 'Km') }
       </div>
     </>
   )

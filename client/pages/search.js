@@ -142,7 +142,7 @@ export default function Profile() {
             </Head>
             {logoutIcon(logout)}
             <main className={styles.main}>
-              <SearchBar/>
+              <SearchBar current={people} update={setPeople}/>
             </main>
             <button onClick={() => {setisLoaded(!isLoaded)}}>pouette</button>
           </div>
