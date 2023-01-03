@@ -8,14 +8,9 @@ const loadData = async (set) => {
 }
 
 function Dropdown(props) {
-  // Declare a state variable for the selected item and set its initial value to null
-  const [selected, setSelected] = useState(null)
-
-  const [tags, setTags] = useState([]);
-  const [searchTags, setSearchTags] = useState([]);
-  const [search, setSearch] = useState([]);
-  // Declare the result array
-  const result = []
+  const [tags, setTags] = useState([])
+  const [searchTags, setSearchTags] = useState([])
+  const [print, setprint] = useState("")
 
   if (typeof window === "undefined") {
     //bypass ssr
@@ -37,19 +32,23 @@ function Dropdown(props) {
     // Get the selected item from the event target
     const selectedItem = event.target.value
 
-    // Update the state variable with the selected item
-    setSelected(selectedItem)
-
     // Add the selected item to the result array
     if (!searchTags.find(elem => elem === selectedItem)){
       searchTags.push(selectedItem)
       setSearchTags(searchTags)
+      setprint(searchTags.join(', '))
     }
-    console.log('selectedItem', selectedItem, 'result', searchTags)
   }
-
   return (
-    <div>
+    <div style={{
+      color:'white',
+      textAlign:'center',
+      margin: '2vmin',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-evenly',
+      flexDirection:'column'
+    }}>
       {/* Create the dropdown menu */}
       <select onChange={handleChange}>
         {/* Add options for each item in the items array */}
@@ -61,8 +60,13 @@ function Dropdown(props) {
       </select>
 
       {/* Display the result array */}
-      <div style={{color:'white'}}>
-        Result: {result.join(', ')}
+      <div style={{
+        color:'white',
+        textAlign:'center',
+        display: 'flex',
+        flexDirection:'column'
+      }}>
+        Selected tags: {print}
       </div>
     </div>
   )

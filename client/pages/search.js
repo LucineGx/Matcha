@@ -8,13 +8,10 @@ import { formatBase64Jpeg } from './api/formatBase64Jpeg'
 import { useRouter } from 'next/router'
 import { sleep } from './utils/sleep'
 import SearchBar from '../components/sreachBar'
+import { logoutIcon } from '../components/common'
 
 const notify = (txt) => toast(txt)
-const logoutIcon = (logoutFn) => <img onClick={logoutFn} src='on-off-button.png' style={{
-  height: '5vmin',
-  margin: '1vmin',
-  cursor: 'pointer',
-}}/>
+
 /**
  * @type {{ [key:string]: React.CSSProperties }}
  */
