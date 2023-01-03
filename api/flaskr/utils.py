@@ -30,6 +30,7 @@ def assign_user_tags(users: pd.DataFrame) -> pd.DataFrame:
         )
     })
 
+
 def assign_profile_picture(users: pd.DataFrame) -> pd.DataFrame:
     from flaskr.models import Picture
     return users.assign(**{
@@ -66,7 +67,7 @@ def get_interval_filter(field: str) -> Tuple[str, list]:
 def get_tag_filter() -> str:
     from flaskr.models import UserTag
     if requested_tags := request.args.get("tags", None):
-        user_ids = UserTag.get('tag_name', requested_tags.split('+'), distinct='user_id').fetchall()
+        user_ids = UserTag.get('tag_name', requested_tags.split('~'), distinct='user_id').fetchall()
         if user_ids:
             return f'AND id IN ({", ".join([str(user[0]) for user in user_ids])}) '
     return ''
