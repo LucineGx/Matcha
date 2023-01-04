@@ -54,7 +54,7 @@ def get_or_create_message(user_id: int):
     if request.method == "POST":
         return Message.create(dict(request.form))
 
-@bp.route("/lasts", methods=("GET",))
-@login_required
-def get_all_last_messages():
+#@bp.route("/lasts", methods=("GET",))
+#@login_required
+#def get_all_last_messages():
 
