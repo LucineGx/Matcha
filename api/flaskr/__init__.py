@@ -2,12 +2,12 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 from flaskr import db, auth
 from flaskr.models import *
 
-socketio = SocketIO()
+socketio = SocketIO(cors_allowed_origins="*")
 
 
 def create_app(test_config=None):
@@ -79,5 +79,12 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	app.register_blueprint(user.bp)
 	app.register_blueprint(tag.bp)
-	socketio.init_app(app, cors_allowed_origins="*")
+	socketio.init_app(app)
 	return app
+
+
+@socketio.on('connect')
+def connection_to_socket():
+	print('New socket connection')
+	# Todo: create the 5 types of notif, with userid and datetime
+	emit('HelloWorld', {'data': 'Hello there.'})

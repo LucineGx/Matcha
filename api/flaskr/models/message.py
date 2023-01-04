@@ -35,6 +35,7 @@ class Message(BaseModel):
 bp = Blueprint("messages", __name__, url_prefix="/messages")
 
 
+# TODO: add last_messages route to return the last message only for all the discussions
 @bp.route("/<user_id>", methods=("GET", "POST"))
 @login_required
 def get_or_create_message(user_id: int):
@@ -52,3 +53,8 @@ def get_or_create_message(user_id: int):
         return Message.bulk_expose(messages, 200)
     if request.method == "POST":
         return Message.create(dict(request.form))
+
+@bp.route("/lasts", methods=("GET",))
+@login_required
+def get_all_last_messages():
+
