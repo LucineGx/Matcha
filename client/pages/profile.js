@@ -59,6 +59,7 @@ const useMountEffect = (fun) => useEffect(fun, [])
 
 export default function Profile() {
   const router = useRouter()
+
   const logout = async () => {
     const requestOption = {
       method: 'GET',
@@ -76,6 +77,7 @@ export default function Profile() {
       console.error(e)
     }
   }
+
   /**
    * @type {UserInfo}
    */
@@ -87,8 +89,9 @@ export default function Profile() {
 
   const loadData = async () => {
     const curUser = await pushRequest('user/', 'GET')
-    if (!curUser)
-      router.push('/login')
+    if (!curUser){
+      return router.push('/login')
+    }
     setUser(curUser)
     const pics = await pushRequest(`user/${curUser.id}/pictures`, 'GET')
     setUserPictures(pics)
@@ -115,6 +118,7 @@ export default function Profile() {
               <link rel="icon" href="/logo.png" />
             </Head>
             {logoutIcon(logout)}
+            <button onClick={() => router.push('/search')}> tres tres la navigation oui oui tout a fait</button>
             <div className={styles.main}>
               <form style={jsxStyles.mainDiv}>
                 <div style={jsxStyles.pictureNameTopRow}>

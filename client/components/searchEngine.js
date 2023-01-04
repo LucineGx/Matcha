@@ -40,7 +40,6 @@ function SearchEngine(props) {
       updateFunction(current)
       setprint(current.join(', '))
     }
-    console.log('handleSearch', current)
   }
 
   return (

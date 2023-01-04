@@ -17,7 +17,7 @@ const pushRequest = async (url, method, data, options = {isText: false}) => {
     const res = await fetch('http://127.0.0.1:5000/' + url, requestOptions)
     if (res.ok) {
       const body = (options.isText === true) ? await res.text() : await res.json()
-      console.log('response body', body)
+      console.log(method, url, body)
       return body
     }
   } catch (e) {

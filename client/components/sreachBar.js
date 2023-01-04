@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import { Input, Slider } from 'antd'
+import {  Slider } from 'antd'
 import { toast } from 'react-toastify'
 import { pushRequest } from '../pages/api/apiUtils'
-import Dropdown from './dropdown'
-import ChatPopup from '../pages/popupchat'
+// import ChatPopup from '../pages/popupchat'
 import SearchEngine from './searchEngine'
-
-const { Search } = Input
 
 const notify = (txt) => toast(txt)
 function SearchBar(props) {
@@ -22,9 +19,11 @@ function SearchBar(props) {
 
   const {current, update} = props
 
-  const onSearch = () => {
+  const onSearch = async (event) => {
+    event.preventDefault()
+    // console.log('event', event)
     const tagsString = tags.length ? tags.join('~') : ''
-    router.push({
+    await router.push({
       pathname: '/search',
       query: {
         age_min: ageMin,
@@ -35,26 +34,31 @@ function SearchBar(props) {
         tags: tagsString,
       },
     })
-    console.log('lol',router.asPath.toString())
+    const queryString = 'user/' + router.asPath.toString().replace('%7E', '~').slice(1)
+    const ppl = await pushRequest(queryString, 'GET')
+    update(ppl)
   }
 
   const onChange = (name, value) => {
+    console.log('sreachBar: onChange:', name, value)
     switch (name) {
       case 'age':
         setAgeMin(value[0])
         setAgeMax(value[1])
         break
       case 'public_popularity':
-        setPublicPopularityMin(value[0])
-        setPublicPopularityMax(value[1])
-        break;
+        if (value[0] != publicPopularityMin){
+          setPublicPopularityMin(value[0])
+        }
+        if (value[1] != publicPopularityMax)
+          setPublicPopularityMax(value[1])
+        break
       case 'distance':
         setDistance(value)
         break
-      default:
-        break
     }
-  };
+    console.log(publicPopularityMin)
+  }
 
   return (
     <>
@@ -78,52 +82,50 @@ function SearchBar(props) {
       </div>
     </>
   )
-}
 
-function makeSilder(name, min, max, onChangeCallBack, inputValue, unity) {
-  //range silder
-  if (min != null && max != null) {
+  function makeSilder(name, min, max, onChangeCallBack, inputValue, unity) {
+    //range silder
+    if (min != null && max != null) {
+      return  (
+        <div style={{display: 'flex', margin: '1vmin', flexDirection: 'column'}}>
+          <p style={{ width: '100%', color: 'white', margin: '1vmin', flexDirection: 'row' }}>
+            {`${name}: ${inputValue.min} ~ ${inputValue.max} ${unity}`}
+          </p>
+          <Slider
+            id={name}
+            style={{ width: '20vmax', margin: '1vmax' }}
+            min={min}
+            max={max}
+            range
+            defaultValue={[inputValue.min,inputValue.max]}
+            onChange={(value) => onChangeCallBack(name, value)}
+          />
+        </div>
+      )
+    }
+    //input silder
     return  (
-      <div style={{display: 'flex', margin: '1vmin', flexDirection: 'column'}}>
+      <div
+        style={{
+          display: 'flex',
+          margin: '1vmin',
+          flexDirection: 'column'
+        }}
+      >
         <p style={{ width: '100%', color: 'white', margin: '1vmin', flexDirection: 'row' }}>
-          {`${name}: ${inputValue.min} ~ ${inputValue.max} ${unity}`}
+          {`${name}: ≤ ${inputValue} ${unity}`}
         </p>
         <Slider
           id={name}
-          style={{ width: '20vmax', margin: '1vmax' }}
-          min={min}
+          min={0}
           max={max}
-          range
-          defaultValue={[inputValue.min,inputValue.max]}
-          onChange={
-            (value) => (onChangeCallBack(name, value))
-          }
+          style={{ width: '20vmax', margin: '1vmax' }}
+          onChange={(val)=>{onChangeCallBack(name, val)}}
+          value={inputValue}
         />
       </div>
     )
   }
-  //input silder
-  return  (
-    <div
-      style={{
-        display: 'flex',
-        margin: '1vmin',
-        flexDirection: 'column'
-      }}
-    >
-      <p style={{ width: '100%', color: 'white', margin: '1vmin', flexDirection: 'row' }}>
-        {`${name}: ≤ ${inputValue} ${unity}`}
-      </p>
-      <Slider
-        id={name}
-        min={0}
-        max={max}
-        style={{ width: '20vmax', margin: '1vmax' }}
-        onChange={(val)=>{onChangeCallBack(name, val)}}
-        value={inputValue}
-      />
-    </div>
-  )
 }
 
 const youWillDieAlone = () => notify('no needs to be more spesific you\'ll die alone anyway')
