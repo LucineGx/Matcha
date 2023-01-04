@@ -252,9 +252,20 @@ class BaseModel:
     def update(cls, form: dict, conditions: dict) -> None:
         db = get_db()
         set_statement = ", ".join([f"{column} = ?" for column in form.keys()])
+        where = [
+            f"{col} in ({', '.join(['?' for v in val])})"
+            if isinstance(val, list)
+            else f"{col} = ?"
+            for col, val in conditions.items()
+        ]
+        values = []
+        for val in list(form.values()) + list(conditions.values()):
+            if isinstance(val, list):
+                values += val
+            else:
+                values += [val]
         where_statement = " AND ".join([f"{column} = ?" for column in conditions.keys()])
-        values = list(form.values()) + list(conditions.values())
-        query = f"UPDATE {cls.name} SET {set_statement} WHERE {where_statement}"
+        query = f"UPDATE {cls.name} SET {set_statement} WHERE {' AND '.join(where)}"
         db.execute(query, values)
         db.commit()
 

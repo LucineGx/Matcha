@@ -79,6 +79,7 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	app.register_blueprint(user.bp)
 	app.register_blueprint(tag.bp)
+	app.register_blueprint(message.bp)
 	socketio.init_app(app)
 	return app
 
