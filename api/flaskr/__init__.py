@@ -79,5 +79,5 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	app.register_blueprint(user.bp)
 	app.register_blueprint(tag.bp)
-	socketio.init_app(app)
+	socketio.init_app(app, cors_allowed_origins="*")
 	return app
