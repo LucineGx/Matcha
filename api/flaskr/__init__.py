@@ -2,9 +2,12 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from flask_socketio import SocketIO
 
 from flaskr import db, auth
 from flaskr.models import *
+
+socketio = SocketIO()
 
 
 def create_app(test_config=None):
@@ -76,5 +79,5 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	app.register_blueprint(user.bp)
 	app.register_blueprint(tag.bp)
-	app.register_blueprint(message.bp)
+	socketio.init_app(app)
 	return app
