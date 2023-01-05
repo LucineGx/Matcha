@@ -96,9 +96,11 @@ def user():
 @bp.route('/<user_id>/', methods=('GET',))
 @login_required
 def other_user(user_id: int):
+	user_id = int(user_id)
 	# To do: don't count as visit if guest's id is the same as host id
 	from .like import Like
 	from .visit import Visit
+	# To do: check with the front-end if every get call can really be counted as a visit.
 	Visit.create({"host_user_id": user_id, "guest_user_id": g.user["id"]})
 	liked = Like.is_user_liked(user_id)
 	return User.expose("id", user_id, 200, custom_fields={"liked": liked})

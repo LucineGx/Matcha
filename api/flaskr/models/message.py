@@ -1,4 +1,5 @@
 from typing import Union
+from datetime import datetime
 
 from flask import Response, session, Blueprint, request
 
@@ -56,7 +57,14 @@ def get_or_create_message(user_id: int):
         return Message.bulk_expose(messages, 200)
     if request.method == "POST":
         Message.update({"last": 0}, {"author_user_id": users, "destination_user_id": users})
-        return Message.create(dict(request.form))
+        response = Message.create(dict(request.form))
+        from flaskr import socketio
+        socketio.emit("NewMessage", {
+            "destination_user_id": user_id,
+            "user_id": session["user_id"],
+            "datetime": datetime.strftime(datetime.now(), "%a, %d %b %Y %H:%M:%S GMT")
+        })
+        return response
 
 
 @bp.route("last_messages", methods=("GET",))

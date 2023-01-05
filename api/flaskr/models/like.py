@@ -1,6 +1,8 @@
 from typing import Tuple, Union, Optional
+from datetime import datetime
 
 from flask import Response, g, request
+from flask_socketio import emit
 
 from flaskr.db.base_model import BaseModel
 from flaskr.db.fields import ForeignKeyField, DatetimeField
@@ -28,6 +30,17 @@ class Like(BaseModel):
             form['guest_user_id'] = g.user['id']
             response = cls._create(form, expose=False)
             User.compute_popularity_score(form['host_user_id'])
+            is_mutual_like = cls.get(
+                on_col=["host_user_id", "guest_user_id"],
+                for_val=[form["guest_user_id"], form["host_user_id"]]
+            ).fetchone()
+            notif_type = "LikeBack" if is_mutual_like else "NewLike"
+            from flaskr import socketio
+            socketio.emit(notif_type, {
+                "destination_user_id": form["host_user_id"],
+                "user_id": form["guest_user_id"],
+                "datetime": datetime.strftime(datetime.now(), "%a, %d %b %Y %H:%M:%S GMT")
+            })
             return response
         else:
             return "User liked already", 409
@@ -58,6 +71,7 @@ def given_likes():
 @bp.route('/<user_id>/like', methods=('POST', 'DELETE'))
 @login_required
 def like_user(user_id: int):
+    user_id = int(user_id)
     
     if request.method == 'POST':
         # To do: provide a user from liking himself
@@ -65,6 +79,10 @@ def like_user(user_id: int):
 
     elif request.method == 'DELETE':
         Like.delete(on_col=["host_user_id", "guest_user_id"], for_val=[user_id, g.user['id']])
+        from flaskr import socketio
+        socketio.emit("LostLike", {
+            "destination_user_id": user_id,
+            "user_id": g.user["id"],
+            "datetime": datetime.strftime(datetime.now(), "%a, %d %b %Y %H:%M:%S GMT")
+        })
         return "User unliked", 200
-
-    

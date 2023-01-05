@@ -264,7 +264,6 @@ class BaseModel:
                 values += val
             else:
                 values += [val]
-        where_statement = " AND ".join([f"{column} = ?" for column in conditions.keys()])
         query = f"UPDATE {cls.name} SET {set_statement} WHERE {' AND '.join(where)}"
         db.execute(query, values)
         db.commit()
