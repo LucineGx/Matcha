@@ -138,3 +138,26 @@
     flex-direction: column;
   }
 }
+
+.popup-close-button {
+  display: flex;
+  cursor: pointer;
+  position: relative;
+  top: 0;
+  right: 0;
+  color: #fff;
+  background-color: #000;
+  width:  1.5vmax;
+  height: 1.5vmax;
+  border-radius: 100%;
+  line-height: normal;
+  border-radius: 2rem;
+}
+
+.popup-close-button:hover {
+  background-color: #777;
+}
+
+.popup-close-button:active {
+  background-color: #333;
+}
