@@ -1,4 +1,5 @@
 from typing import Tuple, Union
+from datetime import datetime
 
 from flask import Response, session
 
@@ -25,6 +26,12 @@ class Visit(BaseModel):
     @classmethod
     def create(cls, form: dict) -> Tuple[Union[str, Response], int]:
         response = cls._create(form, expose=False)
+        from flaskr import socketio
+        socketio.emit("NewVisit", {
+            "destination_user_id": form["host_user_id"],
+            "user_id": form["guest_user_id"],
+            "datetime": datetime.strftime(datetime.now(), "%a, %d %b %Y %H:%M:%S GMT")
+        })
         User.compute_popularity_score(form['host_user_id'])
         return response
 

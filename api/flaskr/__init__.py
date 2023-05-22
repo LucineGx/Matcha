@@ -79,6 +79,7 @@ def create_app(test_config=None):
 	app.register_blueprint(auth.bp)
 	app.register_blueprint(user.bp)
 	app.register_blueprint(tag.bp)
+	app.register_blueprint(message.bp)
 	socketio.init_app(app)
 	return app
 
@@ -86,5 +87,5 @@ def create_app(test_config=None):
 @socketio.on('connect')
 def connection_to_socket():
 	print('New socket connection')
-	# Todo: create the 5 types of notif, with userid and datetime
+	# Todo: create the 5 types of notif, with userid destinationuserid and datetime
 	emit('HelloWorld', {'data': 'Hello there.'})
