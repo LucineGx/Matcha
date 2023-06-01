@@ -30,8 +30,8 @@ export default function Login() {
   if (typeof window === "undefined") {
     //bypass ssr
     return (
-      <>
-      </>
+      <div>
+      </div>
     )
   }
   const connect = async event => {

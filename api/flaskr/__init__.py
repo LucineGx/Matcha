@@ -43,7 +43,7 @@ def create_app(test_config=None):
 	"""
 	app = Flask(__name__, instance_relative_config=True)
 	cors_config = {
-		"origins": ["http://localhost:3000"],
+		"origins": ["http://localhost:8080/*"],
 		"methods": ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
 		"allow_headers": ["Authorization"]
 	}

@@ -1,7 +1,8 @@
 
 <script>
-  import toast, { Toaster } from 'svelte-french-toast';
-  import {globalCache} from '../../resource/cache.js'
+  import toast, { Toaster } from 'svelte-french-toast'
+  import {globalCache} from '../resource/cache.js'
+  import { navigate } from "svelte-routing"
   let formData = new FormData();
   let user
 
@@ -22,7 +23,8 @@
         globalCache.cacheResourceByType("userInfo", data)
         toast.success('Login successful')
         // redirect to userPage
-        window.location.href = '/user/me'
+        navigate("/profile", { replace: true })
+        // window.location.href = '/user/me'
       } else {
         const error = await response.text()
         toast.error(error)

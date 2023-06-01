@@ -22,6 +22,10 @@
   <h1>Home</h1>
   <button on:click={() => navigate('/login')}>Login</button>
   <button on:click={() => navigate('/register')}>Register</button>
+  <button on:click={() => navigate('/chat')}>Chat</button>
+  <button on:click={() => navigate('/user/me')}>Profile</button>
+  <button on:click={() => navigate('/user/other')}>someSexyDate</button>
+  <button on:click={() => navigate('/map')}>laMAaaaaAaaaaap</button>
 
 </lol>
 

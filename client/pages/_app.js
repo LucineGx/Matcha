@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css'
 
 function MyApp({ Component, pageProps }) {
   return (
-    <>
+    <div>
       <Component {...pageProps} />
       <ToastContainer
           position="bottom-right"
@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps }) {
           closeOnClick
           pauseOnHover
       />
-    </>
+    </div>
   )
 }
 

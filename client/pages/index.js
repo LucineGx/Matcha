@@ -33,6 +33,8 @@ export default function Home() {
       </div>
     )
   } else {
-    return null
+    return (
+      <div/>
+    )
   }
 }

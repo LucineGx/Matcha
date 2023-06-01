@@ -55,6 +55,7 @@ def confirm_register(token: str):
 
 @bp.route('/login', methods=('POST',))
 def login():
+	# print("lickmyfluffyballs", request.form.get('username'))
 	if "username" not in request.form or "password" not in request.form:
 		return "Username and passwords expected to login", 401
 	user = User.get("username", request.form["username"]).fetchone()

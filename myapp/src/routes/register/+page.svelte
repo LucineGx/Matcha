@@ -1,9 +1,11 @@
 
 <script>
+    import toast, { Toaster } from 'svelte-french-toast';
     // import { register } from '../stores/auth.js';
     function register(e) {
       e.preventDefault();
       console.log('register');
+      toast.success("It works!")
     }
     let email = '';
     let password = '';
@@ -18,3 +20,5 @@
     <input type="password" id="password" bind:value={password} />
     <button type="submit">Register</button>
 </form>
+
+<Toaster />
